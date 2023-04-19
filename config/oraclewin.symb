@@ -1,0 +1,55 @@
+#static symbol list for Oracle
+# Value: Symbols to be genarated as static ref when used in a call
+# (case dependent)
+# eg: 
+#static-link: myfunc 
+#     CALL "myfunc"  will generate a myfunc() 
+#
+external-link: SQLAB1
+external-link: SQLGSST
+external-link: SQLGSS
+external-link: SQLGS2
+external-link: SQLGLS
+external-link: SQLGLST
+external-link: SQLADR
+external-link: SQLADRCR
+external-link: SQLADRVC
+external-link: SQLAD1
+external-link: SQLALD
+external-link: SQLALDT
+external-link: SQLBS1
+external-link: SQLCDA
+external-link: SQLCUR
+external-link: SQLFCC
+external-link: SQLFCH
+external-link: SQLGB1
+external-link: SQLLO1
+external-link: SQLLDA
+external-link: SQLLD2
+external-link: SQLLEN
+external-link: SQLMOV
+external-link: SQLOCA
+external-link: SQLOS1
+external-link: SQLPCS
+external-link: SQLSQS
+external-link: SQLSTRD
+external-link: SQLTFL
+external-link: SQLTOC
+external-link: SQLGRI
+external-link: SQLNUL
+external-link: SQLNULT
+external-link: SQLPRC
+external-link: SQLPRCT
+external-link: SQLPR2
+external-link: SQLPR2T
+external-link: SQLBEX
+external-link: SQLBXT
+external-link: SQLORA
+external-link: SQLORAT
+external-link: SQLGLM
+external-link: SQLGLMT
+external-link: SQLBCC
+external-link: SQLBTE
+external-link: DSNTIAR
+external-link: SQLROWIDGET
+

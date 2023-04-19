@@ -1,0 +1,131 @@
+/*							-*- c -*-
+ * Copyright (C) 2003-2007 Keisuke Nishida
+ * Copyright (C) 2007 Roger While
+  * Copyright (C) 2008-2020 Cobol-IT
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this software; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 51 Franklin Street, Fifth Floor
+ * Boston, MA 02110-1301 USA
+ */
+
+CB_CONFIG_STRING  (cb_config_name, "name")
+CB_CONFIG_INT_OPT (cb_first_tab_width, "first-tab-width", 0)
+CB_CONFIG_INT (cb_tab_width, "tab-width")
+CB_CONFIG_INT (cb_text_column, "text-column")
+CB_CONFIG_ANY_OPT (enum cb_assign_clause, cb_assign_clause, "assign-clause",CB_ASSIGN_MF)
+CB_CONFIG_ANY_OPT (enum cb_binary_size, cb_binary_size, "binary-size", CB_BINARY_SIZE_2_4_8)
+CB_CONFIG_ANY_OPT (enum cb_binary_byteorder, cb_binary_byteorder, "binary-byteorder", CB_BYTEORDER_BIG_ENDIAN)
+CB_CONFIG_ANY_OPT (enum cb_binary_byteorder, cb_comp5_byteorder, "comp5-byteorder",CB_BYTEORDER_NATIVE)
+CB_CONFIG_BOOLEAN (cb_filename_mapping, "filename-mapping")
+CB_CONFIG_BOOLEAN (cb_pretty_display, "pretty-display")
+CB_CONFIG_BOOLEAN (cb_binary_truncate, "binary-truncate")
+CB_CONFIG_BOOLEAN (cb_auto_initialize, "auto-initialize")
+CB_CONFIG_BOOLEAN (cb_complex_odo, "complex-odo")
+CB_CONFIG_BOOLEAN (cb_indirect_redefines, "indirect-redefines")
+CB_CONFIG_BOOLEAN (cb_larger_redefines_ok, "larger-redefines-ok")
+CB_CONFIG_BOOLEAN (cb_relaxed_syntax_check, "relaxed-syntax-check")
+/* CB_CONFIG_BOOLEAN (cb_sticky_linkage, "sticky-linkage") */
+CB_CONFIG_BOOLEAN (cb_relax_level_hierarchy, "relax-level-hierarchy")
+CB_CONFIG_BOOLEAN (cb_relax_bounds_check, "relax-bounds-check")
+CB_CONFIG_SUPPORT (cb_author_paragraph, "author-paragraph")
+CB_CONFIG_SUPPORT (cb_memory_size_clause, "memory-size-clause")
+CB_CONFIG_SUPPORT (cb_multiple_file_tape_clause, "multiple-file-tape-clause")
+CB_CONFIG_SUPPORT (cb_label_records_clause, "label-records-clause")
+CB_CONFIG_SUPPORT (cb_value_of_clause, "value-of-clause")
+CB_CONFIG_SUPPORT (cb_data_records_clause, "data-records-clause")
+CB_CONFIG_SUPPORT (cb_top_level_occurs_clause, "top-level-occurs-clause")
+CB_CONFIG_SUPPORT (cb_goto_statement_without_name, "goto-statement-without-name")
+CB_CONFIG_SUPPORT (cb_stop_literal_statement, "stop-literal-statement")
+CB_CONFIG_SUPPORT (cb_debugging_line, "support-debugging-line")
+CB_CONFIG_SUPPORT (cb_padding_character_clause, "padding-character-clause")
+CB_CONFIG_SUPPORT (cb_next_sentence_phrase, "next-sentence-phrase")
+CB_CONFIG_SUPPORT (cb_eject_statement, "eject-statement")
+CB_CONFIG_SUPPORT (cb_entry_statement, "entry-statement")
+CB_CONFIG_SUPPORT (cb_move_noninteger_to_alphanumeric, "move-noninteger-to-alphanumeric")
+CB_CONFIG_SUPPORT (cb_odo_without_to, "odo-without-to")
+
+/*CIT*/
+CB_CONFIG_SUPPORT_OPT (cb_synchronized_clause, "synchronized-clause", CB_OK)
+CB_CONFIG_SUPPORT_OPT (cb_synchronized_clause_on_group, "synchronized-clause-on-group",CB_OK)
+CB_CONFIG_BOOLEAN_OPT (cb_synchronized_double_word, "synchronized-double-word-bound",0)
+CB_CONFIG_SUPPORT_OPT (cb_synchronized_group_align_size, "synchronized-group-align-size",CB_SKIP)
+CB_CONFIG_SUPPORT_OPT (cb_synchronized_occurs_align_size, "synchronized-occurs-align-size",CB_SKIP)
+CB_CONFIG_SUPPORT_OPT (cb_redefine_identifier, "redefine-identifier", CB_OK)
+CB_CONFIG_BOOLEAN_OPT (cb_synchronized_propagate_to_occurs, "synchronized-propagate-to-occurs",1)
+CB_CONFIG_BOOLEAN_OPT (cb_synchronized_propagate_to_occurs_goup_size, "synchronized-propagate-to-occurs-with-group-size",0)
+CB_CONFIG_ANY         (enum cb_sticky_linkage_mode, cb_sticky_linkage, "sticky-linkage")
+CB_CONFIG_INT_OPT     (cb_defaultbyte, "defaultbyte", 0)
+CB_CONFIG_ANY_OPT     (enum cb_move_sp_to_9_mode, cb_move_spaces_to_displaynumeric, "move-spaces-to-displaynumeric", CB_MOVEspTO9_ZERO)
+CB_CONFIG_ANY_OPT     (enum cb_move_sp_to_9_mode, cb_move_spaces_to_comp3, "move-spaces-to-comp3", CB_MOVEspTO9_ZERO)
+CB_CONFIG_SUPPORT_OPT (cb_compile_move_xto9, "compile-move-picx-to-pic9", CB_OK)
+/* CB_CONFIG_STRING_OPT  (cb_codepage, "codepage", NULL) */
+CB_CONFIG_STRING_OPT  (cb_source_codepage, "source-codepage", NULL)
+CB_CONFIG_BOOLEAN_OPT (cb_flag_mf_spzero, "spzero",0)
+CB_CONFIG_BOOLEAN_OPT (cb_use_defaultbyte, "use-defaultbyte",0)
+CB_CONFIG_BOOLEAN_OPT (cb_flag_line_seq_unix, "line-seq-unix",0)
+CB_CONFIG_BOOLEAN_OPT (cb_flag_line_seq_mf, "line-seq-mf",1)
+CB_CONFIG_BOOLEAN_OPT (cb_flag_line_seq_notrunc, "line-seq-notrunc",0)
+CB_CONFIG_BOOLEAN_OPT (cb_flag_recmode_osvs, "recmode-osvs",0)
+CB_CONFIG_BOOLEAN_OPT (cb_flag_exit_program_forced, "exit-program-forced",1)
+CB_CONFIG_BOOLEAN_OPT (cb_flag_initialize_to_value, "initialize-to-value",0)
+CB_CONFIG_BOOLEAN_OPT (cb_flag_initalize_to_value, "initalize-to-value",0)
+CB_CONFIG_BOOLEAN_OPT (cb_flag_initalize_filler, "initialize-filler",0)
+CB_CONFIG_BOOLEAN_OPT (cb_flag_initialize_pointer, "initialize-pointer",1)
+CB_CONFIG_BOOLEAN_OPT (cb_flag_displaynumeric_mf50, "displaynumeric-mf50",0)
+CB_CONFIG_BOOLEAN_OPT (cb_flag_displaynumeric_vms, "displaynumeric-vms",0)
+CB_CONFIG_BOOLEAN_OPT (cb_flag_displaynumericedited_mf50, "displaynumeric-edited-mf50",1)
+CB_CONFIG_BOOLEAN_OPT (cb_flag_ignore_comp6_sign, "accept-but-ignore-comp6-signed",0)
+CB_CONFIG_BOOLEAN_OPT (cb_flag_signed_comp6_2_comp3, "signed-comp6-as-comp3",0)
+CB_CONFIG_BOOLEAN_OPT (cb_flag_tally_register, "tally-register",0)
+CB_CONFIG_BOOLEAN_OPT (cb_external_mapping, "external-mapping",1)
+CB_CONFIG_ANY_OPT     (enum cb_move_x_to_9_mode, cb_move_xto9_mode, "move-picx-to-pic9",CB_MOVExTO9_NONE)
+CB_CONFIG_BOOLEAN_OPT (cb_flag_pad_var_rec_mf, "variable-rec-pad-mf",0)
+CB_CONFIG_BOOLEAN_OPT (cb_flag_pack_comp_4, "pack-comp-4",0)
+CB_CONFIG_STRING_OPT  (cb_flag_quote_char, "quote", NULL)
+CB_CONFIG_BOOLEAN_OPT (cb_flag_load_priority, "module-load-priority",0)
+CB_CONFIG_BOOLEAN_OPT (cb_flag_full_cancel, "full-cancel",0)
+CB_CONFIG_BOOLEAN_OPT (cb_flag_validate_odo, "validate-odo",1)
+CB_CONFIG_STRING_OPT  (cb_isam_extfh, "isam-extfh",NULL)
+CB_CONFIG_STRING_OPT  (cb_isamextfh_lib, "isam-extfh-lib",NULL)
+CB_CONFIG_STRING_OPT  (cb_flat_extfh, "flat-extfh",NULL)
+CB_CONFIG_STRING_OPT  (cb_flatextfh_lib, "flat-extfh-lib",NULL)
+CB_CONFIG_BOOLEAN_OPT (cb_flag_read_at_end_mf, "read-at-end-mf",0)
+CB_CONFIG_BOOLEAN_OPT (cb_flag_move_to_group_separated, "move-to-group-separated",0)
+CB_CONFIG_INT_OPT     (cb_data_compress, "datacompress", 0)
+CB_CONFIG_INT_OPT     (cb_key_compress, "keycompress",0)
+CB_CONFIG_BOOLEAN_OPT (cb_ls_utf16, "ls-utf16",0)
+CB_CONFIG_INT_OPT     (cb_flag_defaultcall, "defaultcall",0)
+CB_CONFIG_BOOLEAN_OPT (cb_flag_line_seq_recording_mode, "line-seq-recording-mode",0)
+CB_CONFIG_BOOLEAN_OPT (cb_flag_key_dup_always_22, "key-dup-always-22",0)
+CB_CONFIG_BOOLEAN_OPT (cb_flag_ls_ignore_rec_size, "ls-ignore-record-size",0)
+CB_CONFIG_BOOLEAN_OPT (cb_flag_map_screen_exceptions, "screen-exceptions",0)
+CB_CONFIG_BOOLEAN_OPT (cb_flag_map_screen_raw_keys, "screen-raw-keys",0)
+CB_CONFIG_BOOLEAN_OPT (cb_flag_ignore_with_rollback, "ignore-with-rollback",0)
+CB_CONFIG_BOOLEAN_OPT (cb_flag_bitfield_first_is_lsb, "bitfield-first-is-lsb",0)
+CB_CONFIG_INT_OPT     (cb_rtncode_size, "rtncode-size",0)
+CB_CONFIG_SUPPORT_OPT (cb_invalid_with_file_type, "invalid-with-file-type",CB_ERROR)
+CB_CONFIG_BOOLEAN_OPT (cb_flag_ignore_global_in_local, "ignore-global-in-local-storage",0)
+CB_CONFIG_BOOLEAN_OPT (cb_flag_console_equal_sysfile, "console-is-sysfile", 0)
+CB_CONFIG_BOOLEAN_OPT (cb_flag_raw_compare, "raw-compare", 1)
+CB_CONFIG_INT_OPT     (cb_max_ident_length, "identifier-length", 0)
+CB_CONFIG_BOOLEAN_OPT (cb_flag_check_linkage_bound, "check-linkage-bound", 1)
+CB_CONFIG_BOOLEAN_OPT (cb_flag_0_length_trim, "zero-length-trim", 1)
+CB_CONFIG_INT_OPT     (cb_local_storage_guard, "local-storage-guard", 8)
+CB_CONFIG_INT_OPT     (cb_max_literal_expand, "max-literal-expand", 32)
+CB_CONFIG_ANY_OPT     (enum cb_move_high_low_to_9_mode, cb_move_high_low_to_displaynumeric, "move-high-low-to-displaynumeric", CB_MOVEhlTO9_VALUE)
+CB_CONFIG_BOOLEAN_OPT (cb_when_compiled_function_all, "when-compiled-function-all", 0)
+CB_CONFIG_STRING_OPT  (cb_when_compiled_register_format, "when-compiled-reg-format", NULL)
+CB_CONFIG_SUPPORT_OPT (cb_syntax_ibm5_2, "non-ibm-5.2-syntax", CB_OK)
+CB_CONFIG_SUPPORT_OPT (cb_numeric_group, "numeric-group", CB_OK)
+

@@ -1,0 +1,23 @@
+#
+# Copyright (C) 2008-2009 Cobol-IT
+#
+if [ "x${COBOLITDIR:=}" = "x" ] 
+then
+	if [ -f $DEFAULT_CITDIR/bin/cobol-it-setup.sh ]
+	then
+		COBOLITDIR=$DEFAULT_CITDIR
+	else
+		echo You must define  COBOLITDIR to the root instalation dir of COBOL-IT
+	fi
+fi
+if [ "x${COBOLITDIR:=}" != "x" ] 
+then
+	PATH=$COBOLITDIR/bin:${PATH}
+	LD_LIBRARY_PATH="$COBOLITDIR/lib:${LD_LIBRARY_PATH:=}"
+	DYLD_LIBRARY_PATH="$COBOLITDIR/lib:${DYLD_LIBRARY_PATH:=}"
+	SHLIB_PATH="$COBOLITDIR/lib:${SHLIB_PATH:=}"
+	LIBPATH="$COBOLITDIR/lib:${LIBPATH:=}"
+	COB="COBOL-IT"
+	export COB COBOLITDIR LD_LIBRARY_PATH PATH DYLD_LIBRARY_PATH SHLIB_PATH LIBPATH
+	echo COBOL-IT Environement set to $COBOLITDIR
+fi

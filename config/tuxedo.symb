@@ -1,0 +1,64 @@
+#static symbol list for Tuxedo
+# Value: Symbols to be genarated as static ref when used in a call
+# (case dependent)
+# eg: 
+#staticx-link: myfunc 
+#     CALL "myfunc"  will generate a myfunc() 
+#
+staticx-link: TPABORT
+staticx-link: TPACALL
+staticx-link: TPADVERTISE
+staticx-link: TPBEGIN
+staticx-link: TPBROADCAST
+staticx-link: TPCALL
+staticx-link: TPCANCEL
+staticx-link: TPCHKAUTH
+staticx-link: TPCHKUNSOL
+staticx-link: TPCLOSE
+staticx-link: TPCOMMIT
+staticx-link: TPCONNECT
+staticx-link: TPDEQUEUE
+staticx-link: TPDISCON
+staticx-link: TPENQUEUE
+staticx-link: TPFORWARD
+staticx-link: TPGBLKTIME
+staticx-link: TPGETCTXT
+staticx-link: TPGETLEV
+staticx-link: TPGETRPLY
+staticx-link: TPGETUNSOL
+staticx-link: TPGPRIO
+staticx-link: TPINITIALIZE
+staticx-link: TPKEYSETINFO
+staticx-link: TPKEYGETINFO
+staticx-link: TPKEYCLOSE
+staticx-link: TPKEYOPEN
+staticx-link: TPNOTIFY
+staticx-link: TPOPEN
+staticx-link: TPPOST
+staticx-link: TPRECV
+staticx-link: TPRESUME
+staticx-link: TPRETURN
+staticx-link: TPSBLKTIME
+staticx-link: TPSCMT
+staticx-link: TPSEND
+staticx-link: TPSETCTXT
+staticx-link: TPSETUNSOL
+staticx-link: TPSPRIO
+staticx-link: TPSUBSCRIBE
+staticx-link: TPSUSPEND
+staticx-link: TPSVCSTART
+staticx-link: TPSVRDONE
+staticx-link: TPSVRINIT
+staticx-link: TPTERM
+staticx-link: TPUNADVERTISE
+staticx-link: TPUNSUBSCRIBE
+staticx-link: TXBEGIN
+staticx-link: TXCLOSE
+staticx-link: TXCOMMIT
+staticx-link: TXINFORM
+staticx-link: TXOPEN
+staticx-link: TXROLLBACK
+staticx-link: TXSETCOMMITRET
+staticx-link: TXSETTRANCTL
+staticx-link: TXSETTIMEOUT
+

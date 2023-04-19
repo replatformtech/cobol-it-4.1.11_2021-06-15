@@ -1,0 +1,22 @@
+### COBOL-IT Test Suite				-*- m4 -*-
+
+## Copyright (C) 2008-215 Cobol-IT
+##
+
+# compute all big-endian
+
+AT_SETUP([COMPUTE ADD-SUB-MUL-DIV])
+
+
+
+AT_CHECK([${COMPILE_MODULE}  ${TEMPLATE}/comp/*.cob -o .])
+AT_CHECK([cobcrun test_all > res], [0], [])
+AT_CHECK([diff ${TEMPLATE}/comp/result.txt res], [0], [])
+
+AT_CHECK([${COMPILE_MODULE}  -ffast-op ${TEMPLATE}/comp/*.cob -o .])
+AT_CHECK([cobcrun test_all > res], [0], [])
+AT_CHECK([diff ${TEMPLATE}/comp/result.txt res], [0], [])
+
+
+AT_CLEANUP
+

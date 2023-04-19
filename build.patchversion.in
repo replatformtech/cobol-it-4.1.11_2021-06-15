@@ -1,0 +1,2 @@
+#uncomment next line to build in a specific directory
+#export BUILDCOBOLITDIR="/opt/cobol-it-"`cat version`

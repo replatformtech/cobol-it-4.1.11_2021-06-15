@@ -1,0 +1,1108 @@
+### OpenCOBOL Test Suite				-*- m4 -*-
+
+## Copyright (C) 2003-2007 Keisuke Nishida
+## Copyright (C) 2007 Roger While
+## Copyright (C) 2008 Cobol-IT
+##
+## This program is free software; you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation; either version 2, or (at your option)
+## any later version.
+## 
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+## 
+## You should have received a copy of the GNU General Public License
+## along with this software; see the file COPYING.  If not, write to
+## the Free Software Foundation, 51 Franklin Street, Fifth Floor
+## Boston, MA 02110-1301 USA
+
+###
+### Invalid PROGRAM-ID
+###
+
+AT_SETUP([Invalid PROGRAM-ID])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      short.
+       PROCEDURE        DIVISION.
+           STOP RUN.
+])
+
+AT_CHECK([${COMPILE_ONLY} prog.cob], [1], ,
+[prog.cob:3: Error: PROGRAM-ID 'short' invalid, may be a reserved C language word or function name.
+])
+
+AT_CLEANUP
+
+AT_SETUP([Invalid PROGRAM-ID predefined C function])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      main.
+       PROCEDURE        DIVISION.
+           STOP RUN.
+])
+
+AT_CHECK([${COMPILE_ONLY} prog.cob], [1], ,
+[prog.cob:3: Error: PROGRAM-ID 'main' invalid, may be a reserved C language word or function name.
+])
+
+AT_CLEANUP
+
+AT_SETUP([Invalid PROGRAM-ID type clause (1)])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog IS COMMON.
+       PROCEDURE        DIVISION.
+           STOP RUN.
+])
+
+AT_CHECK([${COMPILE_ONLY} prog.cob], [1], ,
+[prog.cob:3: Error: COMMON may only be used in a nested program
+])
+
+AT_CLEANUP
+
+AT_SETUP([Invalid PROGRAM-ID type clause (2)])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog IS INITIAL RECURSIVE.
+       PROCEDURE        DIVISION.
+           STOP RUN.
+])
+
+AT_CHECK([${COMPILE_ONLY} prog.cob], [1], ,
+[prog.cob:3: Error: syntax error, unexpected RECURSIVE, expecting end of file
+])
+
+AT_CLEANUP
+
+###
+### Data name
+###
+
+## Undefined
+
+AT_SETUP([Undefined data name])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       PROCEDURE        DIVISION.
+           DISPLAY X
+           END-DISPLAY.
+           STOP RUN.
+])
+
+AT_CHECK([${COMPILE_ONLY} prog.cob], [1], ,
+[prog.cob:5: Error: 'X' undefined
+])
+
+AT_CLEANUP
+
+AT_SETUP([Undefined group name])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       01 X             PIC X.
+       PROCEDURE        DIVISION.
+           DISPLAY X IN G
+           END-DISPLAY.
+           STOP RUN.
+])
+
+AT_CHECK([${COMPILE_ONLY} prog.cob], [1], ,
+[prog.cob:8: Error: 'X in G' undefined
+])
+
+AT_CLEANUP
+
+AT_SETUP([Undefined data name in group])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       01 G.
+         02 X           PIC X.
+       01 Y             PIC X.
+       PROCEDURE        DIVISION.
+           DISPLAY Y IN G
+           END-DISPLAY.
+           STOP RUN.
+])
+
+AT_CHECK([${COMPILE_ONLY} prog.cob], [1], ,
+[prog.cob:10: Error: 'Y in G' undefined
+])
+
+AT_CLEANUP
+
+AT_SETUP([Reference not a group name])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       01 X             PIC X.
+       PROCEDURE        DIVISION.
+           DISPLAY X IN X
+           END-DISPLAY.
+           STOP RUN.
+])
+
+AT_CHECK([${COMPILE_ONLY} prog.cob], [1], ,
+[prog.cob:8: Error: 'X in X' undefined
+])
+
+AT_CLEANUP
+
+
+## Incomplete
+
+AT_SETUP([Incomplete 01 definition])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       01 X.
+])
+
+AT_CHECK([${COMPILE_ONLY} prog.cob], [1], ,
+[prog.cob:6: Error: PICTURE clause required for 'X'
+])
+
+AT_CLEANUP
+
+
+## Same labels in different sections
+
+AT_SETUP([Same labels in different sections])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       PROCEDURE        DIVISION.
+       S-1 SECTION.
+       L.
+
+       S-2 SECTION.
+       L.
+
+       S-3 SECTION.
+            GO TO L.
+       L.
+])
+
+AT_CHECK([${COMPILE_ONLY} prog.cob], [0])
+
+AT_CLEANUP
+
+
+## Redefinition
+
+AT_SETUP([Redefinition of 01 items])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       01 X             PIC X.
+       01 X             PIC X.
+])
+
+AT_CHECK([${COMPILE_ONLY} prog.cob], [0], ,
+[prog.cob:7: Warning: Redefinition of 'X'
+prog.cob:6: Warning: -> 'X' previously defined here
+])
+
+AT_CLEANUP
+
+AT_SETUP([Redefinition of 01 and 02 items])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       01 X.
+         02 X           PIC X.
+])
+
+AT_CHECK([${COMPILE_ONLY} prog.cob], [0], ,
+[prog.cob:7: Warning: Redefinition of 'X'
+prog.cob:6: Warning: -> 'X' previously defined here
+])
+
+AT_CLEANUP
+
+AT_SETUP([Redefinition of 02 items])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       01 G.
+         02 X           PIC X.
+         02 X           PIC X.
+])
+
+AT_CHECK([${COMPILE_ONLY} prog.cob], [0], ,
+[prog.cob:8: Warning: Redefinition of 'X'
+prog.cob:7: Warning: -> 'X' previously defined here
+])
+
+AT_CLEANUP
+
+AT_SETUP([Redefinition of 77 items])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       77 X             PIC X.
+       77 X             PIC X.
+])
+
+AT_CHECK([${COMPILE_ONLY} prog.cob], [0], ,
+[prog.cob:7: Warning: Redefinition of 'X'
+prog.cob:6: Warning: -> 'X' previously defined here
+])
+
+AT_CLEANUP
+
+AT_SETUP([Redefinition of 01 and 77 items])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       01 X             PIC X.
+       77 X             PIC X.
+])
+
+AT_CHECK([${COMPILE_ONLY} prog.cob], [0], ,
+[prog.cob:7: Warning: Redefinition of 'X'
+prog.cob:6: Warning: -> 'X' previously defined here
+])
+
+AT_CLEANUP
+
+AT_SETUP([Redefinition of 88 items])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       01 X             PIC X.
+         88 A           VALUE "A".
+         88 A           VALUE "B".
+])
+
+AT_CHECK([${COMPILE_ONLY} prog.cob], [0], ,
+[prog.cob:8: Warning: Redefinition of 'A'
+prog.cob:7: Warning: -> 'A' previously defined here
+])
+
+AT_CLEANUP
+
+AT_SETUP([Ambiguous reference to 02 items])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       01 G1.
+         02 X           PIC X.
+       01 G2.
+         02 X           PIC X.
+       PROCEDURE        DIVISION.
+           DISPLAY X
+           END-DISPLAY.
+           STOP RUN.
+])
+
+AT_CHECK([${COMPILE_ONLY} prog.cob], [1], ,
+[prog.cob:11: Error: 'X' ambiguous; need qualification
+prog.cob:7: Error: -> 'X' in 'G1' defined here
+prog.cob:9: Error: -> 'X' in 'G2' defined here
+])
+
+AT_CLEANUP
+
+AT_SETUP([Ambiguous reference to 02 and 03 items])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       01 G.
+         02 X.
+           03 X         PIC X.
+       PROCEDURE        DIVISION.
+           DISPLAY X
+           END-DISPLAY.
+           STOP RUN.
+])
+
+AT_CHECK([${COMPILE_ONLY} prog.cob], [1], ,
+[prog.cob:10: Error: 'X' ambiguous; need qualification
+prog.cob:7: Error: -> 'X' in 'G' defined here
+prog.cob:8: Error: -> 'X' in 'X' in 'G' defined here
+])
+
+AT_CLEANUP
+
+AT_SETUP([Ambiguous reference with qualification])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       01 G1.
+         02 X.
+           03 Y         PIC X.
+       01 G2.
+         02 X.
+           03 Y         PIC X.
+       PROCEDURE        DIVISION.
+           DISPLAY Y OF X
+           END-DISPLAY.
+           STOP RUN.
+])
+
+AT_CHECK([${COMPILE_ONLY} prog.cob], [1], ,
+[prog.cob:13: Error: 'Y in X' ambiguous; need qualification
+prog.cob:8: Error: -> 'Y' in 'X' in 'G1' defined here
+prog.cob:11: Error: -> 'Y' in 'X' in 'G2' defined here
+])
+
+AT_CLEANUP
+
+
+
+AT_SETUP([Unique reference with ambiguous qualifiers])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       01 G1.
+         02 X.
+           03 Y         PIC X VALUE "Y".
+       01 G2.
+         02 X.
+           03 Z         PIC X VALUE "Z".
+       PROCEDURE        DIVISION.
+           DISPLAY Z OF X NO ADVANCING
+           END-DISPLAY.
+           STOP RUN.
+])
+
+AT_CHECK([${COMPILE_ONLY} prog.cob], [0])
+
+AT_CLEANUP
+
+AT_SETUP([ambiguous qualifiers solved at level 01])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       01 G1.
+ 	 02 X           PIC X VALUE "X".
+         02 G1.
+           03 Y         PIC X VALUE "Y".
+       PROCEDURE        DIVISION.
+           DISPLAY G1 NO ADVANCING
+	   DISPLAY ":" NO ADVANCING
+           DISPLAY G1 OF G1 NO ADVANCING
+           STOP RUN.
+])
+
+AT_CHECK([${COMPILE} -w -o prog prog.cob], [0])
+AT_CHECK([./prog], [0], [XY:Y])
+
+AT_CLEANUP
+
+
+AT_SETUP([78 field inside structure])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       01 G1.
+         02 X.
+           03 Y         PIC X.
+	   78	Yaa VALUE "A".
+	   78	Ybb VALUE "B".
+           03 Z         PIC X.
+       PROCEDURE        DIVISION.
+           DISPLAY Z OF X NO ADVANCING
+           END-DISPLAY.
+           STOP RUN.
+])
+
+AT_CHECK([${COMPILE_ONLY} prog.cob], [0])
+
+AT_CLEANUP
+
+AT_SETUP([78 field as first field])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       78	Yaa VALUE "A".
+       01 G1.
+         02 X.
+           03 Y         PIC X.
+           03 Z         PIC X.
+       PROCEDURE        DIVISION.
+           DISPLAY Z OF X NO ADVANCING
+           END-DISPLAY.
+           STOP RUN.
+])
+
+AT_CHECK([${COMPILE_ONLY} prog.cob], [0])
+
+AT_CLEANUP
+
+###
+### File name
+###
+
+
+###
+### Label name
+###
+
+## Undefined
+
+AT_SETUP([Undefined procedure name])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       PROCEDURE        DIVISION.
+           GO TO END-OF-PROGRAM.
+           STOP RUN.
+])
+
+AT_CHECK([${COMPILE_ONLY} prog.cob], [1], ,
+[prog.cob:5: Error: 'END-OF-PROGRAM' undefined
+])
+
+AT_CLEANUP
+
+
+## Redefinition
+
+AT_SETUP([Redefinition of section names])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       PROCEDURE        DIVISION.
+       L SECTION.
+       L SECTION.
+           STOP RUN.
+])
+
+AT_CHECK([${COMPILE_ONLY} -fno-mf-compat-parser prog.cob], [1], ,
+[prog.cob: In section 'L':
+prog.cob:6: Error: Redefinition of 'L'
+prog.cob:5: Error: -> 'L' previously defined here
+])
+
+AT_CLEANUP
+
+AT_SETUP([Redefinition of section and paragraph names])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       PROCEDURE        DIVISION.
+       L SECTION.
+       L.
+           STOP RUN.
+])
+
+AT_CHECK([${COMPILE_ONLY} -fno-mf-compat-parser prog.cob], [1], ,
+[prog.cob: In section 'L':
+prog.cob:6: Error: Redefinition of 'L'
+prog.cob:5: Error: -> 'L' previously defined here
+])
+
+AT_CLEANUP
+
+AT_SETUP([Redefinition of paragraph names])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       PROCEDURE        DIVISION.
+       L.
+       L.
+           STOP RUN.
+])
+
+AT_CHECK([${COMPILE_ONLY} prog.cob], [0], ,
+[])
+
+## Change when we DON'T allow this
+## AT_CHECK([${COMPILE_ONLY} prog.cob], [1], ,
+## [prog.cob: In paragraph 'L':
+## prog.cob:6: Error: redefinition of 'L'
+## prog.cob:5: Error: -> 'L' previously defined here
+## ])
+
+AT_CLEANUP
+
+AT_SETUP([Ambiguous reference to paragraph name])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       PROCEDURE        DIVISION.
+       S-1 SECTION.
+       L.
+       S-2 SECTION.
+       L
+       S-3 SECTION.
+           GO TO L.
+           STOP RUN.
+])
+
+AT_CHECK([${COMPILE_ONLY} prog.cob], [1], ,
+[prog.cob: In section 'S-3':
+prog.cob:10: Error: 'L' ambiguous; need qualification
+prog.cob:6: Error: -> 'L' in 'S-1' defined here
+prog.cob:8: Error: -> 'L' in 'S-2' defined here
+])
+
+AT_CLEANUP
+
+AT_SETUP([Missing dot])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. prog
+       ENVIRONMENT DIVISION.
+       CONFIGURATION SECTION.
+       INPUT-OUTPUT SECTION.
+       DATA DIVISION.
+       FILE SECTION.
+       WORKING-STORAGE SECTION.
+       01 F12345678901234567890123456789 PIC 9(5).
+       01 FELD1 PIC 9(5).
+       PROCEDURE DIVISION.
+       MAIN.
+           INITIALIZE FELD1.
+                      F12345678901234567890123456789
+                      FELD2
+       MAIN-END.
+           EXIT PROGRAM.
+           STOP RUN.
+])
+
+AT_CHECK([${COMPILE_ONLY} prog.cob], [1], ,
+[prog.cob: In paragraph 'F12345678901234567890123456789':
+prog.cob:14: Error: syntax error, unexpected Identifier, expecting SECTION
+])
+AT_CLEANUP
+
+AT_SETUP([Non-matching level numbers (extension)])
+
+AT_DATA([test.conf], [
+include "default.conf"
+relax-level-hierarchy: no
+])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       01  A.
+            05 B.
+                10 C PIC X.
+           04 D.
+            05 E PIC X.
+       PROCEDURE        DIVISION.
+           STOP RUN.
+])
+
+AT_CHECK([${COMPILE_ONLY} -conf=test.conf prog.cob], [1], ,
+[prog.cob:9: Error: No previous data item of level 04
+])
+
+AT_CLEANUP
+
+AT_SETUP([ENTRY Call-convention & by Value])
+
+AT_DATA([prog.cob], [
+ identification division.
+ program-id. tentry.
+ date-compiled.
+ environment division.
+ configuration section.
+ special-names.
+     call-convention 74 is WinApi32
+     .
+ data division.
+ working-storage section.
+
+ linkage section.
+ 01  dll-entry1-data     pic x(60).
+ 01  dll-entry2-data     pic x(60).
+ 01  dll-entry3-data     pic x(60).
+ 01  pntr-1              pointer.
+ 01  pntr-2              pointer.
+ 01  pntr-3              pointer.
+ 01  p9-1              PIC 9(6) COMP-5.
+
+ procedure division.
+ 000-main.
+     entry "wfbscall" WinApi32 
+                      using by value pntr-1
+                            by value pntr-2
+                            by value pntr-3
+                            by value p9-1
+     set address of dll-entry1-data to pntr-1
+     set address of dll-entry2-data to pntr-2
+     set address of dll-entry3-data to pntr-3
+     display "Entry 1 " dll-entry1-data
+     display "Entry 2 " dll-entry2-data
+     display "Entry 3 " dll-entry3-data
+     CALL "MACHIN" USING by value pntr-2;
+     goback
+     .
+])
+
+AT_CHECK([${COMPILE_ONLY} -std=mf -free prog.cob], [0])
+
+AT_CLEANUP
+
+AT_SETUP([IBM Format command])
+
+AT_DATA([prog.cob], [
+        TITLE "coco".
+        identification division.
+        program-id. tentry.
+        TITLE "coco2".
+        date-compiled.
+        environment division.
+        SKIP1.
+        configuration section.
+        special-names.
+            call-convention 74 is WinApi32
+            .
+        data division.
+        working-storage section.
+
+        linkage section.
+        01  dll-entry1-data     pic x(60).
+        01  p9-1              PIC 9(6) COMP-5.
+        SKIP1 
+        SKIP2
+        01 SKIP1A PIC 99.
+        SKIP1.
+
+        procedure division.
+        000-main.
+  	DISPLAY p9-1
+  	SKIP1
+  	SKIP1A
+  	SKIP1.
+  	SKIP1A
+  	SKIP11.
+            goback
+            .
+])
+
+AT_CHECK([${COMPILE_ONLY} -std=mf  prog.cob], [1], ,
+[prog.cob: In paragraph '000-main':
+prog.cob:31: Error: 'SKIP11' undefined
+])
+
+AT_CLEANUP
+
+AT_SETUP([CLASS])
+
+AT_DATA([prog.cob], [
+	identification division.
+	program-id. prog.
+	environment division.
+	configuration section.
+	SPECIAL-NAMES. CLASS ALPHA-NUMBER IS "A" THRU "Z" "0" THRU "9"
+	CLASS DELIMIT IS " " "." "," ":" ";" "!" "?"
+	CLASS WHITESPACE IS " " low-values.
+	working-storage section.
+	procedure division.
+	000-main.
+	stop run
+	.
+])
+
+AT_CHECK([${COMPILE} -std=mf  prog.cob], [0])
+
+AT_CLEANUP
+
+AT_SETUP([EXTERNAL File])
+
+AT_DATA([prog.cob], [
+       identification division.
+       program-id. prog.
+       environment division.
+       configuration section.
+       file-control.
+             SELECT F1 ASSIGN DYNAMIC EFN-F1.
+             SELECT F2 ASSIGN F2
+		ORGANIZATION IS INDEXED
+                RECORD KEY IS KEY1.
+    60       SELECT SYSSYS ASSIGN DYNAMIC EFN-NOTEXITS
+    70              ORGANIZATION INDEXED                                        
+    80              ACCESS DYNAMIC                                              
+    90              RECORD KEY CLE-SYSSYS
+   100              FILE STATUS FST-SYSSYS
+                    lock mode is automatic.
+            SELECT AF-F ASSIGN TO  AF
+            ORGANIZATION IS INDEXED
+            ACCESS MODE IS DYNAMIC
+            RECORD KEY IS AF-KEY1 .
+
+       data division.
+       file section.
+       FD  F1 EXTERNAL.
+       01  F1-ENR PIC X(80).
+       FD  F2 EXTERNAL.
+       01  F2-ENR.
+            05 KEY1 PIC X(10).
+            05 FILLER PIC X(80).
+
+   160 FD  SYSSYS EXTERNAL.
+   170 01  ENRG-SYSSYS.
+   180     02 CLE-SYSSYS.
+              03 SYSSYS-CODE           PIC X(4).
+           02 data-syssys.
+              03 SYSSYS-OS             PIC X(4).
+              03 syssys-password       pic x(8).
+              03 FILLER                PIC X(76).
+       FD  AF-F EXTERNAL
+                 RECORD CONTAINS  2039 CHARACTERS.
+       01  AF-SATZ.
+          10 AF-KEY1.
+          	15  AF01EY1   PIC 9(6)    COMP-6.
+          10    AF-SYSTEM PIC X(2036).
+ 
+       working-storage section.
+       78 PATH-SIZE VALUE 250.
+       77 fst-syssys   pic xx.
+       01 FILE-NAMES EXTERNAL.
+       		05 efn-syssys  pic x(PATH-SIZE) .
+       		05 efn-f1  pic x(PATH-SIZE) .
+
+      ******************************************
+       procedure division.
+       prog section.
+       debut.
+            STOP RUN.
+])
+
+AT_CHECK([${COMPILE} -std=mf  -fno-realpath prog.cob], [0],,
+[prog.cob:54: Warning: 'AF' will be implicitly defined
+prog.cob:54: Warning: 'EFN-NOTEXITS' will be implicitly defined
+prog.cob:54: Warning: 'F2' will be implicitly defined
+])
+
+AT_CLEANUP
+AT_SETUP([LINKAGE BITS])
+
+AT_DATA([prog.cob], [
+000002 IDENTIFICATION DIVISION.
+000003 PROGRAM-ID. PBDEBUG.
+000011 ENVIRONMENT DIVISION.
+000012 CONFIGURATION SECTION.
+000013 SOURCE-COMPUTER. MFCOBOL.
+000014 OBJECT-COMPUTER. MFCOBOL.
+000015 SPECIAL-NAMES.
+000026 DATA DIVISION.
+000200 WORKING-STORAGE SECTION.
+       LINKAGE SECTION.
+       01  TRANSACTION-STORAGE.
+           02  PRIVATE-STORAGE.
+             04  T-PRIV-TRANS-NAME     PIC X(6).
+             04  T-PRIV-PRIOR-TPR      PIC X(8).
+             04  T-PRIV-AC.
+               07  T-AC                PIC 1 USAGE BIT OCCURS  150.
+       01  T-AC1                       PIC 1 USAGE BIT OCCURS  150.
+       PROCEDURE DIVISION USING TRANSACTION-STORAGE.
+A.
+       MOVE B'1' TO T-AC(100).
+       MOVE B'1' TO T-AC1(100).
+       GOBACK.
+])
+
+AT_CHECK([${COMPILE_MODULE} -std=mf  prog.cob], [0])
+AT_CLEANUP
+
+AT_SETUP([Line continuation])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION DIVISION.
+      * Compilation:
+      *    MPE: cob85xlk TESTPL.SRC, TESTPL.PUB
+      *    MFC: cob -x TESTPL2.cbl -o TESTPL2
+      *     cobc -std=mf -x TESTPL2.cbl -o TESTPL2
+       PROGRAM-ID. prog.
+       ENVIRONMENT DIVISION.
+       CONFIGURATION SECTION.
+
+      * The below line is required on MPE not on MFC
+      * SOURCE-COMPUTER. MPE WITH DEBUGGING MODE.
+       INPUT-OUTPUT SECTION.
+      
+       DATA DIVISION.
+
+       WORKING-STORAGE SECTION.
+
+       01  MYLINE.
+       05  FILLER               PIC X(10) VALUE
+           "A
+      -    " UPDATE ".
+
+       01 SOME-LONG-NAMES.
+         10 WA-WORK-FILE-AREA-THIS-IS-A-REALLY-LONG-VARIABLE-NAME-T
+      -HAT-WONT-FIT-ON-A-SINGLE-LINE PIC X(35) VALUE "ABCDEFGHIJ
+      - "KLMNOPQRSTUVWXYZ".
+
+         10 WA-WORK2-FILE-AREA-THIS-IS-A-REALLY-LONG-VARIABLE-NAME-T
+      -HAT-WONT-FIT-ON-A-SINGLE-LINE PIC X(35) VALUE "ABCDEFGHIJ
+      -KLMNOPQRSTUVWXYZ".
+
+
+       PROCEDURE DIVISION.
+ 
+                                                                                               
+       0000-MAIN.
+       DISPLAY "'", MYLINE "'".
+
+       DISPLAY "'"
+             WA-WORK2-FILE-AREA-THIS-IS-A-REALLY-LONG-VARIABLE-NAME-T
+      -HAT-WONT-FIT-ON-A-SINGLE-LINE "'".
+
+           STOP RUN.
+])
+
+AT_CHECK([${COMPILE} -std=mf -w prog.cob], [0])
+AT_CHECK([./prog], [0],
+['A         '
+'ABCDEFGHIJ        KLMNOPQRSTUVWXYZ '
+])
+
+AT_CLEANUP
+
+AT_SETUP([Label vs Field])
+
+AT_DATA([prog.cob], [
+        IDENTIFICATION DIVISION.
+        PROGRAM-ID. TESTPB.
+        ENVIRONMENT DIVISION.
+
+        DATA DIVISION.
+        WORKING-STORAGE SECTION.
+        01 WTEXT.
+        05 WC1 PIC S9(1) COMP-3 VALUE 1.
+        01 XCONVOPTION PIC X(1) VALUE 'A'.
+        01 WNB PIC 9(5) VALUE 0.
+        01 LK-GWPAF-R.
+        05 GWPAF-EINGABEFELDER.
+        10 GWPAF-STEUER-KZ PIC X.
+        88 PRUEFEN VALUE "P".
+        88 UPDAT VALUE "U".
+        PROCEDURE DIVISION.
+        PRUEFEN.
+        PERFORM XCONVOPTION.
+        go to WC1.
+
+        XCONVOPTION.
+        DISPLAY XCONVOPTION.
+
+        WC1.
+        DISPLAY WC1 OF WTEXT.
+        DISPLAY WC1 .
+])
+
+AT_CHECK([${COMPILE} -std=mf -w prog.cob], [0])
+AT_CHECK([./prog], [0],
+[A
+1+
+1+
+])
+
+AT_CLEANUP
+
+AT_SETUP([Missing ENVIRONMENT DIVISION])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. TESTPL.
+      * ENVIRONMENT DIVISION. 
+       CONFIGURATION SECTION.
+       special-names.
+       INPUT-OUTPUT SECTION.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       PROCEDURE DIVISION.
+       0000-MAIN.
+           DISPLAY "Hello World".
+           STOP RUN.
+])
+
+AT_CHECK([${COMPILE} -std=mf -w prog.cob], [0])
+AT_CHECK([./prog], [0],
+[Hello World
+])
+
+AT_CLEANUP
+
+AT_SETUP([Missing FILE SECTION])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. TESTPL.
+      * ENVIRONMENT DIVISION. 
+        CONFIGURATION SECTION.
+      * INPUT-OUTPUT SECTION.
+      
+      * FILE-CONTROL.
+          SELECT   INPUT-FILE ASSIGN TO DYNAMIC NL--ACT-NAME1
+                   FILE STATUS  IS INPUT-FILE-STATUS.
+
+      * DATA DIVISION.
+      * FILE SECTION.
+
+       FD  INPUT-FILE
+           DATA RECORD IS INPUT-RECORD.
+       01  INPUT-RECORD               PIC X(80).
+
+       WORKING-STORAGE SECTION.
+       01 NL--ACT-NAME1    PIC X(256).
+       01 INPUT-FILE-STATUS PIC X(02) VALUE SPACES.
+       screen section.
+       PROCEDURE DIVISION.
+       0000-MAIN.
+           DISPLAY "Hello World".
+        STOP RUN.
+])
+
+AT_CHECK([${COMPILE} -std=mf -w prog.cob], [0])
+AT_CHECK([./prog], [0],
+[Hello World
+])
+
+AT_CLEANUP
+
+AT_SETUP([USING in WORKING])
+AT_DATA([prog.cob], [
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. test_xx.
+       AUTHOR. XX.
+       ENVIRONMENT DIVISION.
+       CONFIGURATION SECTION.
+       SPECIAL-NAMES.
+       DECIMAL-POINT IS COMMA.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+       DATA DIVISION.
+       FILE SECTION.
+       WORKING-STORAGE SECTION.
+       01 WS-1.
+       03 WD-0.
+       05 WD-1 PIC X(01) VALUE SPACES.
+       LINKAGE SECTION.
+       01 LN-1.
+       03 W-1.
+       05 W-ROWID-N PIC 9(18) VALUE ZEROES.
+
+       01 LN-2.
+       03 ln2-1.
+       05 ln2-2 PIC X(06).
+
+       PROCEDURE DIVISION USING
+       WS-1
+       LN-1
+       LN-2.
+       STEUER SECTION.
+       EXIT PROGRAM.
+])
+
+AT_CHECK([${COMPILE} -w prog.cob], [0])
+
+AT_CLEANUP
+
+AT_SETUP([DOT Missing])
+AT_DATA([prog.cob], [
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. test_xx.
+       AUTHOR. XX.
+       ENVIRONMENT DIVISION.
+       CONFIGURATION SECTION.
+       SPECIAL-NAMES.
+       DECIMAL-POINT IS COMMA.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+       DATA DIVISION.
+       FILE SECTION.
+       WORKING-STORAGE SECTION.
+       01 WS-1
+       03 WD-0
+       05 WD-1 PIC X(01) VALUE SPACES.
+       LINKAGE SECTION.
+       01 LN-1.
+       03 W-1
+       05 W-ROWID-N PIC 9(18) VALUE ZEROES.
+
+       01 LN-2.
+       03 ln2-1.
+       05 ln2-2 PIC X(06)
+
+       PROCEDURE DIVISION USING
+       WS-1
+       LN-1
+       LN-2.
+       STEUER SECTION.
+       EXIT PROGRAM.
+])
+
+AT_CHECK([${COMPILE} -w prog.cob], [0])
+
+AT_CLEANUP
+

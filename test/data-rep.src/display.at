@@ -1,0 +1,434 @@
+### OpenCOBOL Test Suite				-*- m4 -*-
+
+## Copyright (C) 2003-2007 Keisuke Nishida
+## Copyright (C) 2007 Roger While
+## Copyright (C) 2008 Cobol-IT
+##
+## This program is free software; you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation; either version 2, or (at your option)
+## any later version.
+##
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License
+## along with this software; see the file COPYING.  If not, write to
+## the Free Software Foundation, 51 Franklin Street, Fifth Floor
+## Boston, MA 02110-1301 USA
+
+
+AT_SETUP([DISPLAY: Sign ASCII])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       01 G.
+         02 X           PIC X(5).
+         02 X-9         REDEFINES X PIC 9(4).
+         02 X-S9        REDEFINES X PIC S9(4).
+         02 X-S9-L      REDEFINES X PIC S9(4) LEADING.
+         02 X-S9-LS     REDEFINES X PIC S9(4) LEADING SEPARATE.
+         02 X-S9-T      REDEFINES X PIC S9(4) TRAILING.
+         02 X-S9-TS     REDEFINES X PIC S9(4) TRAILING SEPARATE.
+       PROCEDURE        DIVISION.
+           MOVE ZERO TO X. MOVE  1234 TO X-9.     DISPLAY X
+           END-DISPLAY.
+           MOVE ZERO TO X. MOVE  1234 TO X-S9.    DISPLAY X
+           END-DISPLAY.
+           MOVE ZERO TO X. MOVE -1234 TO X-S9.    DISPLAY X
+           END-DISPLAY.
+           MOVE ZERO TO X. MOVE  1234 TO X-S9-L.  DISPLAY X
+           END-DISPLAY.
+           MOVE ZERO TO X. MOVE -1234 TO X-S9-L.  DISPLAY X
+           END-DISPLAY.
+           MOVE ZERO TO X. MOVE  1234 TO X-S9-LS. DISPLAY X
+           END-DISPLAY.
+           MOVE ZERO TO X. MOVE -1234 TO X-S9-LS. DISPLAY X
+           END-DISPLAY.
+           MOVE ZERO TO X. MOVE  1234 TO X-S9-T.  DISPLAY X
+           END-DISPLAY.
+           MOVE ZERO TO X. MOVE -1234 TO X-S9-T.  DISPLAY X
+           END-DISPLAY.
+           MOVE ZERO TO X. MOVE  1234 TO X-S9-TS. DISPLAY X
+           END-DISPLAY.
+           MOVE ZERO TO X. MOVE -1234 TO X-S9-TS. DISPLAY X
+           END-DISPLAY.
+           STOP RUN.
+])
+
+AT_CHECK([${COMPILE} -fsign-ascii -o prog prog.cob])
+AT_CHECK([./prog], [0],
+[12340
+12340
+123t0
+12340
+q2340
++1234
+-1234
+12340
+123t0
+1234+
+1234-
+])
+
+AT_CLEANUP
+
+AT_SETUP([DISPLAY: Sign ASCII (2)])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       01 G.
+         02 X           PIC X(10).
+         02 X-S99       REDEFINES X PIC S99.
+         02 X-S9        REDEFINES X PIC S9 OCCURS 10.
+       PROCEDURE        DIVISION.
+           MOVE 0 TO X-S9(1).
+           MOVE 1 TO X-S9(2).
+           MOVE 2 TO X-S9(3).
+           MOVE 3 TO X-S9(4).
+           MOVE 4 TO X-S9(5).
+           MOVE 5 TO X-S9(6).
+           MOVE 6 TO X-S9(7).
+           MOVE 7 TO X-S9(8).
+           MOVE 8 TO X-S9(9).
+           MOVE 9 TO X-S9(10).
+           DISPLAY X NO ADVANCING
+           END-DISPLAY.
+           MOVE -10 TO X-S99. MOVE X(2:1) TO X(1:1).
+           MOVE -1 TO X-S9(2).
+           MOVE -2 TO X-S9(3).
+           MOVE -3 TO X-S9(4).
+           MOVE -4 TO X-S9(5).
+           MOVE -5 TO X-S9(6).
+           MOVE -6 TO X-S9(7).
+           MOVE -7 TO X-S9(8).
+           MOVE -8 TO X-S9(9).
+           MOVE -9 TO X-S9(10).
+           DISPLAY X NO ADVANCING
+           END-DISPLAY.
+           STOP RUN.
+])
+
+AT_CHECK([${COMPILE} -fsign-ascii  -o prog prog.cob])
+AT_CHECK([./prog], [0], [0123456789pqrstuvwxy])
+
+AT_CLEANUP
+
+
+AT_SETUP([DISPLAY: Sign EBCDIC])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       01 G.
+         02 X           PIC X(10).
+         02 X-S99       REDEFINES X PIC S99.
+         02 X-S9        REDEFINES X PIC S9 OCCURS 10.
+       PROCEDURE        DIVISION.
+           MOVE 0 TO X-S9(1).
+           MOVE 1 TO X-S9(2).
+           MOVE 2 TO X-S9(3).
+           MOVE 3 TO X-S9(4).
+           MOVE 4 TO X-S9(5).
+           MOVE 5 TO X-S9(6).
+           MOVE 6 TO X-S9(7).
+           MOVE 7 TO X-S9(8).
+           MOVE 8 TO X-S9(9).
+           MOVE 9 TO X-S9(10).
+           DISPLAY X NO ADVANCING
+           END-DISPLAY.
+           MOVE -10 TO X-S99. MOVE X(2:1) TO X(1:1).
+           MOVE -1 TO X-S9(2).
+           MOVE -2 TO X-S9(3).
+           MOVE -3 TO X-S9(4).
+           MOVE -4 TO X-S9(5).
+           MOVE -5 TO X-S9(6).
+           MOVE -6 TO X-S9(7).
+           MOVE -7 TO X-S9(8).
+           MOVE -8 TO X-S9(9).
+           MOVE -9 TO X-S9(10).
+           DISPLAY X NO ADVANCING
+           END-DISPLAY.
+           STOP RUN.
+])
+
+AT_CHECK([${COMPILE} -fsign-ebcdic -o prog prog.cob])
+AT_CHECK([./prog], [0], [{ABCDEFGHI}JKLMNOPQR])
+
+AT_CLEANUP
+
+AT_SETUP([DISPLAY: Sign EBCDIC (2)])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID.    prog.
+       ENVIRONMENT DIVISION.
+       CONFIGURATION SECTION.
+       SPECIAL-NAMES.
+              DECIMAL-POINT IS COMMA.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+
+           SELECT SALIDA  ASSIGN TO EXTERNAL PRMXSALIDA
+              ORGANIZATION IS LINE SEQUENTIAL.
+       DATA DIVISION.
+       FILE SECTION.
+
+        FD SALIDA
+            BLOCK CONTAINS 0 RECORDS
+            LABEL RECORD STANDARD
+            RECORDING MODE IS F
+            DATA RECORD LINEA-S.
+        01 LINEA-S               PIC X(64).
+       WORKING-STORAGE SECTION.
+006300 01 REG-SALIDA.
+004300    05 WS-STOCKPFO-SA      PIC  S9(07)     VALUE ZEROS.
+004300    05 WS-PORIMPUE-SA      PIC  9(3)V9(2) VALUE ZEROS.
+004300    05 WS-UNDVENTA-SA      PIC  S9(07)     VALUE ZEROS.
+004300    05 WS-ULTSTOCK-SA      PIC  S9(07)     VALUE ZEROS.
+004300    05 WS-IMPPVPNO-SA      PIC  9(8)V9(2) VALUE ZEROS.
+004300    05 WS-IMPRECE-SA       PIC  9(8)V9(2) VALUE ZEROS.
+004300    05 WS-PREVSEM-SA       PIC  S9(5)V9(2) VALUE ZEROS.
+004300    05 WS-PROYVENT-SA      PIC  S9(7)V9(2) VALUE ZEROS.
+004300    05 WS-SEMTOTAL-SA      PIC  9(02)      VALUE ZEROS.
+
+       PROCEDURE DIVISION.
+           OPEN OUTPUT SALIDA
+           MOVE -47   TO WS-STOCKPFO-SA
+           MOVE 12,45 TO WS-PORIMPUE-SA
+           MOVE 26    TO WS-UNDVENTA-SA
+           MOVE -3,62 TO WS-PREVSEM-SA
+           MOVE 17    TO WS-SEMTOTAL-SA
+           MOVE ZEROS TO WS-PROYVENT-SA
+
+           DISPLAY WS-STOCKPFO-SA
+           DISPLAY WS-UNDVENTA-SA
+           DISPLAY WS-PORIMPUE-SA
+           DISPLAY WS-PREVSEM-SA
+           DISPLAY WS-SEMTOTAL-SA
+           WRITE LINEA-S   FROM REG-SALIDA
+           DISPLAY LINEA-S
+           CLOSE SALIDA.
+           GOBACK.
+])
+
+AT_CHECK([${COMPILE} -std=default -w -fsign-ebcdic -o  prog prog.cob])
+AT_CHECK([./prog], [0], 
+[-0000047
++0000026
+012,45
+-00003,62
+17
+000004P01245000002F000000{00000000000000000000000036K00000000{17
+])
+
+AT_CHECK([${COMPILE} -std=default -w -fsign-ascii -o prog prog.cob])
+AT_CHECK([./prog], [0], 
+[-0000047
++0000026
+012,45
+-00003,62
+17
+000004w012450000026000000000000000000000000000000036r00000000017
+])
+
+AT_CLEANUP
+
+AT_SETUP([DISPLAY: ROUND ])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION               DIVISION.
+       PROGRAM-ID.                  prog.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01 Interest pic 9(8)v9(17) .
+       01 BaseInt  pic 9(1)v9(17).
+       01 Years    pic 9(2).
+       01 Amount-1 pic 9(9)v9(9).
+       01 Amount-2 pic 9(9)v9(8).
+       01 Amount-3 pic 9(9)v9(7).
+       01 Amount-4 pic 9(9)v9(6).
+       01 Amount-5 pic 9(9)v9(5).
+       01 Amount-6 pic 9(9)v9(4).
+       01 Amount-7 pic 9(9)v9(3).
+       01 Amount-8 pic 9(9)v9(2).
+       01 Total-1  pic zzzzzzzz9.999999999.
+       01 Total-2  pic zzzzzzzz9.99999999.
+       01 Total-3  pic zzzzzzzz9.9999999.
+       01 Total-4  pic zzzzzzzz9.999999.
+       01 Total-5  pic zzzzzzzz9.99999.
+       01 Total-6  pic zzzzzzzz9.9999.
+       01 Total-7  pic zzzzzzzz9.999.
+       01 Total-8  pic zzzzzzzz9.99.
+       01 keystroke pic x.
+       PROCEDURE DIVISION.
+       MAIN-LOGIC.
+	   MOVE    10 TO Years.
+           MOVE    4.367577991133 TO BaseInt Interest
+	   PERFORM 5 TIMES
+               COMPUTE Interest = Interest * BaseInt
+           END-PERFORM
+	   PERFORM ANNO 5 TIMES
+           STOP    RUN.
+
+       ANNO SECTION.
+           COMPUTE Interest = Interest * BaseInt
+           ADD 0 TO Interest GIVING Amount-1 ROUNDED
+           DISPLAY Amount-1
+           ADD 0 TO Amount-1 GIVING Amount-2 ROUNDED
+           MOVE Amount-2 TO Total-2
+           DISPLAY Total-2
+           ADD 0 TO Amount-2 GIVING Amount-3 ROUNDED
+           MOVE Amount-3 TO Total-3
+           DISPLAY Total-3
+           ADD 0 TO Amount-3 GIVING Amount-4 ROUNDED
+           MOVE Amount-4 TO Total-4
+           DISPLAY Total-4
+           ADD 0 TO Amount-4 GIVING Amount-5 ROUNDED
+           MOVE Amount-5 TO Total-5
+           DISPLAY Total-5
+           ADD 0 TO Amount-5 GIVING Amount-6 ROUNDED
+           MOVE Amount-6 TO Total-6
+           DISPLAY Total-6
+           ADD 0 TO Amount-6 GIVING Amount-7 ROUNDED
+           MOVE Amount-7 TO Total-7
+           DISPLAY Total-7
+           ADD 0 TO Amount-7 GIVING Amount-8 ROUNDED
+           MOVE Amount-8 TO Total-8
+           DISPLAY Total-8
+           EXIT SECTION.
+])
+
+AT_CHECK([${COMPILE} -o prog prog.cob])
+AT_CHECK([./prog], [0], 
+[000030316.892371664
+    30316.89237166
+    30316.8923717
+    30316.892372
+    30316.89237
+    30316.8924
+    30316.892
+    30316.89
+000132411.391882028
+   132411.39188203
+   132411.3918820
+   132411.391882
+   132411.39188
+   132411.3919
+   132411.392
+   132411.39
+000578317.080959231
+   578317.08095923
+   578317.0809592
+   578317.080959
+   578317.08096
+   578317.0810
+   578317.081
+   578317.08
+002525844.954693817
+  2525844.95469382
+  2525844.9546938
+  2525844.954694
+  2525844.95469
+  2525844.9547
+  2525844.955
+  2525844.96
+011031824.833135043
+ 11031824.83313504
+ 11031824.8331350
+ 11031824.833135
+ 11031824.83314
+ 11031824.8331
+ 11031824.833
+ 11031824.83
+])
+
+AT_CLEANUP
+
+AT_SETUP([File > 2Gb ])
+
+AT_DATA([prog.cob], [
+           IDENTIFICATION DIVISION.                                       
+                   PROGRAM-ID. prog.
+                                                                           
+           ENVIRONMENT DIVISION.                                          
+                                                                           
+           CONFIGURATION SECTION.                                         
+           SPECIAL-NAMES.                                                 
+                   DECIMAL-POINT IS COMMA.                                    
+                                                                           
+           INPUT-OUTPUT SECTION.                                          
+           FILE-CONTROL.                                                  
+                   SELECT  VI0SERR  ASSIGN TO  UT-S-VI0SERR                   
+                                    FILE STATUS IS  FLAG-STATUS 
+                            ORGANIZATION LINE SEQUENTIAL.              
+                                                                           
+                   SELECT  VI0F01O  ASSIGN TO  UT-S-VI0F01O                   
+                                    FILE STATUS IS  FLAG-STATUS 
+                            ORGANIZATION IS LINE SEQUENTIAL.                
+                                                                             
+                                                                             
+           DATA DIVISION.                                                   
+           FILE SECTION.                                                    
+           FD  VI0SERR                                                      
+                   RECORDING MODE IS F.                                         
+           01  VI0SERR-REC                     PIC X(132).                  
+           FD  VI0F01O                                                      
+                   RECORDING MODE IS F.                                         
+           01  VI0F01O-REC                     PIC X(132).                  
+           WORKING-STORAGE SECTION.  
+           77 FLAG-STATUS PIC X(2) VALUE SPACE.                             
+           01 WS-REC.                                                
+              05 WS-CAMPO-1         PIC X(8).
+              05 WS-CAMPO-2         PIC X(8).
+              05 WS-CAMPO-3         PIC X(8).
+              05 WS-CAMPO-4         PIC X(8).
+              05 WS-CAMPO-5         PIC X(8).
+              05 WS-CAMPO-6         PIC X(8).
+              05 WS-CAMPO-7         PIC X(8).
+              05 WS-CAMPO-8         PIC X(8).
+           01 WS-NUM-WRITES PIC 9(10).
+           PROCEDURE DIVISION.                                              
+                OPEN    OUTPUT     VI0F01O  
+                MOVE 12345678 TO WS-CAMPO-1
+                MOVE 12345678 TO WS-CAMPO-2
+                MOVE 12345678 TO WS-CAMPO-3
+                MOVE 12345678 TO WS-CAMPO-4
+                MOVE 12345678 TO WS-CAMPO-5
+                MOVE 12345678 TO WS-CAMPO-6
+                MOVE 12345678 TO WS-CAMPO-7
+                MOVE 12345678 TO WS-CAMPO-8
+                MOVE 0 TO WS-NUM-WRITES 
+                PERFORM UNTIL WS-NUM-WRITES > 40000000 
+                    WRITE VI0F01O-REC FROM WS-REC
+                    ADD 1 TO WS-NUM-WRITES
+
+                    IF FLAG-STATUS NOT = "00" 
+                      DISPLAY "WRITE  FAILED"
+                      DISPLAY "IO-STATUS="  FLAG-STATUS
+                      STOP RUN
+                    END-IF
+                END-PERFORM.
+                
+                CLOSE  VI0F01O
+                DISPLAY 'COMPLETED OK'
+                . 
+                STOP RUN.                                                    
+])
+
+AT_CHECK([${COMPILE} -o prog -w prog.cob])
+AT_CHECK([./prog], [0], 
+[COMPLETED OK
+])
+AT_CLEANUP
+

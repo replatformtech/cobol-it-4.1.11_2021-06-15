@@ -1,0 +1,554 @@
+/*							-*- c -*-
+ * Copyright (C) 2003-2007 Keisuke Nishida
+ * Copyright (C) 2007 Roger While
+  * Copyright (C) 2008-2020 Cobol-IT
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this software; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 51 Franklin Street, Fifth Floor
+ * Boston, MA 02110-1301 USA
+ */
+
+#include "lib/gettext.h"
+
+/* CB_FLAG (var, name, doc) */
+
+CB_FLAG (cb_flag_trace, "trace",
+	 N_("Generate trace code (Executed SECTION/PARAGRAPH)"), 0)
+
+CB_FLAG (cb_flag_trace_ts, "trace-ts",
+	 N_("Generate trace code with timestamp (Executed SECTION/PARAGRAPH)"), 0)
+
+CB_FLAG (cb_flag_simple_trace, "simple-trace",
+	 N_("Generate trace code (Executed SECTION/PARAGRAPH simplified (ala MF))"), 0)
+
+CB_FLAG (cb_flag_traceall, "traceall",
+	 N_("Generate trace code (Executed SECTION/PARAGRAPH/STATEMENTS)"), 0)
+
+CB_FLAG (cb_flag_ready_trace, "ready-trace",
+	 N_("Enable READY TRACE and RESET TRACE statements"), 0)
+
+CB_FLAG (cb_flag_trace_sysout, "trace-upon-sysout",
+	 N_("Trace output upon SYSOUT (SYSERR by default)"), 0)
+
+CB_FLAG (cb_flag_syntax_only, "syntax-only",
+	 N_("Syntax error checking only; don't emit any output"), 0)
+
+CB_FLAG (cb_flag_static_call, "static-call",
+	 N_("Output static C function calls for the CALL statement"), 0)
+
+CB_FLAG (cb_flag_call_uppercase, "call-uppercase",
+	 N_("Calls to literral are convert to upper case"), 0)
+
+CB_FLAG (cb_flag_call_lowercase, "call-lowercase",
+	 N_("Calls to literral are convert to lower case"), 0)
+
+CB_FLAG (cb_flag_debugging_line, "debugging-line",
+	 N_("Enable debugging lines ('D' in indicator column)"), 0)
+
+CB_FLAG (cb_flag_source_location, "source-location",
+	 N_("Generate source location code (Turned on by -debug or -g)"), 0)
+
+CB_FLAG (cb_flag_implicit_init, "implicit-init",
+	 N_("Do automatic initialization of the Cobol runtime system"), 0)
+
+CB_FLAG (cb_flag_sign_ascii, "sign-ascii",
+	 N_("Numeric display sign ASCII (Default on ASCII machines)"), 0)
+
+CB_FLAG (cb_flag_sign_ebcdic, "sign-ebcdic",
+	 N_("Numeric display sign EBCDIC (Default on EBCDIC machines)"), 0)
+
+CB_FLAG (cb_flag_stack_check, "stack-check",
+	 N_("PERFORM stack checking (Turned on by -debug or -g)"), 0)
+
+CB_FLAG (cb_flag_fold_copy_lower, "fold-copy-lower",
+	 N_("Fold COPY subject to lower case (Default no transformation)"), 0)
+
+CB_FLAG (cb_flag_fold_copy_upper, "fold-copy-upper",
+	 N_("Fold COPY subject to upper case (Default no transformation)"), 0)
+
+CB_FLAG (cb_flag_notrunc, "notrunc",
+	 N_("Do not truncate binary fields according to PIC (ala MF)"), 0)
+
+CB_FLAG (cb_flag_functions_all, "functions-all",
+	 N_("Allow use of intrinsic functions without FUNCTION keyword"), 0)
+
+CB_FLAG (cb_flag_mfcomment, "mfcomment",
+	 N_("Treat lines with '*' or '/' in column 1 as comments "), 1)
+
+CB_FLAG (cb_flag_null_param, "null-param",
+	 N_("Pass extra NULL terminating pointers on CALL statements"), 0)
+
+CB_FLAG (cb_flag_mem_info, "mem-info",
+	 N_("Enable memory info dump on abort"), 0)
+
+CB_FLAG (cb_flag_no_realpath, "no-realpath",
+	 N_("do not extend file names to fully qualifield realpath"), 0)
+
+CB_FLAG (cb_flag_cics, "cics",
+	 N_("generate CICS compliant code"), 0)
+
+CB_FLAG (cb_flag_obj_cit, "obj-cit",
+	 N_("generate share object with .cit extention"), 0)
+
+CB_FLAG (cb_flag_mf_gnt, "mf-gnt",
+	 N_("generate share object with .gnt extention"), 0)
+
+CB_FLAG (cb_flag_mf_int, "mf-int",
+	 N_("generate preprocessed code with .int extention"), 0)
+
+CB_FLAG (cb_flag_build_main, "main",
+	 N_("Generate main() symbol when used with -x"), 1)
+
+CB_FLAG (cb_flag_link_only, "link-only",
+	 N_("(Obsoleted) Do not generate main() symbol when used with -x (main provided by external object)"), 0)
+
+CB_FLAG (cb_flag_binary_optimize, "bin-opt",
+	 N_("Enable some binary operation optimization"), 0)
+
+CB_FLAG (cb_flag_binary_optimize_strict, "bin-opt-strict",
+	 N_("-fbin-opt binary operation optimization is strictly respected"), 0)
+
+CB_FLAG (cb_flag_call_optimize, "call-opt",
+	 N_("Enable CALL statement optimization (DO NOT USE WITH CANCEL)"), 0)
+
+CB_FLAG (cb_flag_cmp_optimize, "cmp-opt",
+	 N_("Enable some compare optimization "), 1)
+
+CB_FLAG (cb_flag_cmp_inline, "cmp-inline",
+	 N_("Enable some compare inlining "), 0)
+
+CB_FLAG (cb_flag_fp_optimize, "fp-opt",
+	 N_("Enable some floating point operation optimization"), 0)
+
+CB_FLAG (cb_flag_initialize_optimize, "initialize-opt",
+	 N_("Enable some INITIALIZE statement optimization "), 0)
+
+CB_FLAG (cb_flag_profiling, "profiling",
+	 N_("Generate paragraph profiling code"), 0)
+
+CB_FLAG (cb_flag_gen_gcc, "gcc",
+	 N_("Generate gcc code (enabled when COB_CC=gcc)"), 0)
+
+CB_FLAG (cb_flag_goto_gcc, "gcc-goto",
+	 N_("Generate gcc goto code (enabled when-fgcc or COB_CC=gcc)"), 0)
+
+CB_FLAG (cb_flag_optreturn, "return-opt",
+	 N_("Generate optimize PERFORM return code (not valid with -fgcc)"), 0)
+
+/* CIT 
+ * Some MF Compatible flags
+ */
+CB_FLAG (cb_flag_sequential_line, "sequential-line",
+	 N_("Generate all SEQUENTIAL file as LINE SEQUENTIAL"), 0)
+
+CB_FLAG (cb_flag_align_8, "align-8",
+	 N_("Align 01/77 data on 8 byte boundery (default is 4)"), 0)
+
+CB_FLAG (cb_flag_recmode_v, "recmode-v",
+	 N_("All unspecified RECORDING MODE is V"), 0)
+
+CB_FLAG (cb_flag_recmode_f, "recmode-f",
+	 N_("All RECORDING MODE are F what ever the source code said."), 0)
+
+CB_FLAG (cb_flag_context_reload_enable, "checkpoint",
+	 N_("Enable checkpoint with context save/reload code generation"), 0)
+
+CB_FLAG (cb_flag_thread_safe, "thread-safe",
+	 N_("Generate a thread safe code"), 0)
+
+CB_FLAG (cb_flag_nostrip, "nostrip",
+	 N_("Do not strip object and executable files"), 0)
+
+CB_FLAG (cb_flag_debug_exec, "debug-exec",
+	 N_("When Debbuging : trace the EXEC END-EXEC code"), 0)
+
+CB_FLAG (cb_flag_keep_org_line, "keep-org-src-line",
+	 N_("When using precomiler : display error at original source line"), 1)
+
+CB_FLAG (cb_flag_list_sources, "listing-sources",
+	 N_("Source is the result of program listing option (-t <file> )"), 0)
+
+CB_FLAG (cb_flag_gcc_bug, "gcc-bug",
+	 N_("On very large sources, avoid gcc infinite compilation time bug "), 0)
+
+CB_FLAG (cb_flag_gcc_O_bug, "gcc-O-bug",
+	 N_("When using -O some version of gcc has optimization bug. avoid it "), 0)
+
+CB_FLAG (cb_truncate_listing, "truncate-listing",
+	 N_("Output of -t <file> tructated at column 76 "), 0)
+
+CB_FLAG (cb_flag_77_optimize, "77-opt",
+	 N_("Enable Level 77 operation optimization (enabled by -O)"), 0)
+
+CB_FLAG (cb_flag_debug_parser, "debug-parser",
+	 N_("Debug parser (maintainer use only)"), 0)
+
+CB_FLAG (cb_flag_optional_file, "optional-file",
+	 N_("Declare all files as OPTIONAL by default"), 0)
+
+CB_FLAG (cb_flag_param_C_like, "C-cmd-line",
+	 N_("Command line parameters are read ala C interface (int argc , char **argv) "), 0)
+
+CB_FLAG (cb_flag_autolock, "autolock",
+	 N_("Default for SELECT : LOCK MODE IS AUTOMATIC "), 0)
+
+CB_FLAG (cb_flag_manuallock, "manuallock",
+	 N_("Default for SELECT : LOCK MODE IS MANUAL "), 0)
+
+CB_FLAG (cb_flag_exclusivelock, "exclusivelock",
+	 N_("Default for SELECT : LOCK MODE IS EXCLUSIVE "), 0)
+
+CB_FLAG (cb_utf8_sources, "utf-8",
+	 N_("Sources are UTF-8 encoded "), 0)
+
+CB_FLAG (cb_binary_div_check, "div-check",
+	 N_("Check division when binary optimization is enable "), 1)
+
+CB_FLAG (cb_flag_odo_slide, "odo-slide",
+	 N_("Slide field after OCCURS DEPENDING ON table "), 0)
+
+CB_FLAG (cb_flag_incomplete_occurs, "incomplete-subscript",
+	 N_("enable use of table name as ALL table "), 1)
+
+CB_FLAG (cb_flag_round_fp, "round-fp",
+	 N_("Round COMP-1/2 when moving to non COMP-1/2 "), 0)
+
+CB_FLAG (cb_flag_gen_xdd, "gen-xdd",
+	 N_("Generate c-TreeACE .xdd file "), 0)
+
+CB_FLAG (cb_flag_use_ctree, "ctree",
+	 N_("Use CIT c-TreeACE for isam files "), 0)
+
+CB_FLAG (cb_flag_sign_leading, "sign-leading",
+	 N_("Default is SIGN is LEADING "), 0)
+
+CB_FLAG (cb_flag_sign_separate, "sign-separate",
+	 N_("Default is SIGN is SEPARATE  "), 0)
+
+CB_FLAG (cb_flag_utf16_le, "utf16-le",
+	 N_("PIC N use UTF-16-LE encoding (default is UTF-16-BE) "), 0)
+
+CB_FLAG (cb_flag_display_dos, "display-dos",
+	 N_("DISPLAY statement uses CR/LF"), 0)
+
+CB_FLAG (cb_flag_no_cbl_error_proc, "no-cbl-error-proc",
+	 N_("Do not execute CBL_ERROR_PROC"), 0)
+
+CB_FLAG (cb_flag_emulate_vms, "emulate-vms",
+	 N_("strip spaces from filenames and add suffix \'.DAT\' if needed"), 0)
+
+CB_FLAG (cb_flag_vms_error_handler, "vms-error-handler",
+	 N_("default IO error handler always abort (emulation of VMS behavior)"), 0)
+
+CB_FLAG (cb_flag_global_typedef, "global-typedef",
+	 N_("TYPEDEF have a GLOBAL scope"), 1)
+
+CB_FLAG (cb_flag_module_name_entry, "module-name-entry",
+	 N_("Generate source module as alternate entry"), 1)
+
+CB_FLAG (cb_flag_printer_need_crlf, "printer-crlf",
+	 N_("ASSIGN TO PRINTER set End Of Record to CR/LF"), 0)
+
+CB_FLAG (cb_flag_line_seq_expand_tab, "ls-expand-tab",
+	 N_("Read LINE SEQUENTIAL file expand TAB to 8 spaces stop"), 1)
+
+CB_FLAG (cb_flag_initialize_fd, "initialize-fd",
+	 N_("Initialize FD first records at program entry"), 0)
+
+CB_FLAG (cb_flag_accept_with_update, "accept-with-update",
+	 N_("ACCEPT field is by default WITH UPDATE"), 0)
+
+CB_FLAG (cb_flag_accept_with_auto, "accept-with-auto",
+	 N_("ACCEPT field is by default WITH AUTO"), 0)
+
+CB_FLAG (cb_flag_use_disam, "disam",
+	 N_("Force usage of DIsam extfh for isam files"), 0)
+
+CB_FLAG (cb_flag_use_vbisam, "vbisam",
+	 N_("Force usage of VBIsam extfh for isam files"), 0)
+
+CB_FLAG (cb_flag_fcd_reg, "fcdreg",
+	 N_("Define a FH--FCD register for each FD entry"), 0)
+
+CB_FLAG (cb_flag_replace_additive, "replace-additive",
+	 N_("REPLACE Statemens are added to current until REPLACE OFF"), 0)
+
+CB_FLAG (cb_flag_enable_listing_macro, "ibm-listing-macro",
+	 N_("Enable IBM listing extention (TITLE, SKIP1/2/3, EJECT ...)"), 1)
+
+CB_FLAG (cb_flag_file_auto_external, "file-auto-external",
+	 N_("When a file is EXTERNAL, the DYNAMIC ASSIGN field are implicitly EXTERNAL"), 1)
+
+CB_FLAG (cb_flag_optimize_move, "optimize-move",
+	 N_("Optimize MOVE"), 1)
+
+CB_FLAG (cb_flag_optimize_move_call, "optimize-move-call",
+	 N_("Optimize MOVE call"), 0)
+
+CB_FLAG (cb_flag_module_name_uppercase, "module-uppercase",
+	 N_("When used with -m the output file name is upper cased"), 0)
+
+CB_FLAG (cb_flag_as400_like, "as400-like",
+	 N_("LIKE verb act as AS400 Cobol"), 0)
+
+CB_FLAG (cb_flag_mf_compat_parser, "mf-compat-parser",
+	 N_("Syntax parser is more MF compatible"), 1)
+
+CB_FLAG (cb_flag_mf_ctrl_escaped, "mf-ctrl-escaped-parser",
+	 N_("Syntax parser is MF compatible with control character escaped by 0"), 1)
+
+CB_FLAG (cb_flag_auto_load_static, "auto-load-symb",
+	 N_("Auto load static.symb and user.symb configuration file"), 1)
+
+CB_FLAG (cb_flag_region0, "region0",
+	 N_("Program always switch to region 0 when executing"), 0)
+
+CB_FLAG (cb_flag_main_as_object, "main-as-object",
+	 N_("main symbol build as object not in library (unix only)"), 1)
+
+CB_FLAG (cb_flag_please_include_main, "include-main",
+	 N_("Include main symbol in module object when compiled with -c"), 0)
+
+CB_FLAG (cb_flag_keep_copy, "keep-copy-statement",
+	 N_("In listing and preprocessed file keep COPY statements"), 0)
+
+CB_FLAG (cb_flag_copy_mark, "copy-mark",
+	 N_("In listing and preprocessed file add mark for begin/end of COPY"), 0)
+
+CB_FLAG (cb_flag_exec_check, "exec-check",
+	 N_("Used with syntax-check, check the EXEC SQL/CICS/DLI syntax"), 0)
+
+CB_FLAG (cb_flag_curdir_include, "curdir-include",
+	 N_("Search COPY in current directory first (before -I <Path>"), 1)
+
+CB_FLAG (cb_flag_expand_include, "expand-sql-include",
+	 N_("Expand 'EXEC SQL INCLUDE <File name> END-EXEC'"), 0)
+
+CB_FLAG (cb_flag_expand_exec_copy, "expand-exec-copy",
+	 N_("Expand COPY <File name>. clause inside EXEC ... END-EXEC"),0)
+
+CB_FLAG (cb_flag_share_all_lock_auto, "share-all-autolock",
+	 N_("SELECT SHARE WITH ALL are implicitly LOCK MODE IS AUTOMATIC "), 0)
+
+CB_FLAG (cb_flag_share_all_lock_manual, "share-all-manulock",
+	 N_("SELECT SHARE WITH ALL are implicitly LOCK MODE IS MANUAL "), 0)
+
+CB_FLAG (cb_flag_share_all_default, "share-all-default",
+	 N_("SELECT SHARE WITH ALL is the default "), 0)
+
+CB_FLAG (cb_flag_trap_unhandled_exception, "trap-unhandled-exception",
+	 N_("All enabled unhandled exception generate an abort "), 0)
+
+CB_FLAG (cb_flag_protect_parameters, "protect-linkage",
+	 N_("Avoid SIGVEC if NULL is given as parameters "), 0)
+
+CB_FLAG (cb_flag_safe_linkage, "safe-linkage",
+	 N_("Avoid SIGVEC in debugger when parameters are not provided "), 0)
+
+CB_FLAG (cb_flag_alloc_linkage, "alloc-unused-linkage",
+	 N_("Allocate unused LINKAGE item "), 0)
+
+CB_FLAG (cb_flag_compare_numeric, "numeric-compare",
+	 N_("Compare Numeric witch PIC X is done using numeric value of PIC X "), 0)
+
+CB_FLAG (cb_flag_mf_by_value, "raw-by-value", 
+	 N_("CALL BY VALUE of PIC X is not converted to numeric COMP-5 "),1)
+
+CB_FLAG (cb_flag_raw_pic9_display, "raw-pic9-display", 
+	 N_("Display PIC 9(x) (no sign , no decimal) as it is in memory "),0)
+
+CB_FLAG (cb_flag_IBM_sync, "ibm-sync", 
+	 N_("If First Sub field is SYNC then Group SYNC "),1)
+
+CB_FLAG (cb_flag_ctree_no_full_field_name, "ctree-no-full-qualification", 
+	 N_("CTree Xdd Generate short names only "),0)
+
+CB_FLAG (cb_flag_ctree_field_numbering, "ctree-field-numbering", 
+	 N_("CTree Xdd Generate a prefix F<FieldNumber>_ before Field names "),0)
+
+CB_FLAG (cb_flag_gcos, "gcos-mode", 
+	 N_("Emulate GCOS operation "),0)
+
+CB_FLAG (cb_flag_record_contains_strict, "strict-record-contains", 
+	 N_("RECORD CONTAINS CLAUSE is strictly respected "),1)
+
+CB_FLAG (cb_flag_split_debug_mark, "split-debug-mark", 
+	 N_("DEBUG marks respect max 72 characters "),1)
+
+CB_FLAG (cb_flag_functions_all_intrinsic, "functions-all-intrinsic", 
+	 N_("Some functions do not require FUNCTION keyword "),0)
+
+CB_FLAG (cb_flag_ebcdic_charset, "ebcdic-charset", 
+	 N_("Compile for a EBCDIC charset runtime "),0)
+
+CB_FLAG (cb_flag_mainframe_var_rec, "mainframe-vb", 
+	 N_("Variable Blocked file are read/write to be compatible with mainframe"),0)
+
+CB_FLAG (cb_flag_cobol_lines, "cobol-lines", 
+	 N_("gcc only, #line with COBOL sources line directive in C source"),0)
+
+CB_FLAG (cb_flag_hostnumcompare_1, "mf-hostnumcompare", 
+	 N_("Try to emulate MF HOSTNUMCOMPATE"),0)
+
+CB_FLAG (cb_flag_fast_figurative_move, "fast-figurative-move", 
+	 N_("Fast MOVE of figurative constant "),1)
+
+CB_FLAG (cb_flag_source_validate, "validate-only", 
+	 N_("Compile source, no output produced, EXEC are ignored "),0)
+
+CB_FLAG (cb_flag_compute_ibm, "compute-ibm",
+	 N_("COMPUTE use IBM rules for intermediate result decimal places"),0)
+
+CB_FLAG (cb_flag_compute_ibm_trunc, "compute-ibm-trunc",
+	 N_("When compute-ibm is on truncate intermedaite results"),1)
+
+CB_FLAG (cb_flag_fast_operation, "fast-op",
+	 N_("Fast operation on numeric DISPLAY/COMP-3"),0)
+/*To be removed*/
+CB_FLAG (cb_flag_relative_mf, "mf-relativefile",
+	 N_("Relative Files compatible with MF format"),0)
+
+CB_FLAG (cb_flag_relative_bigendian, "relativefile-bigendian",
+	 N_("Relative Files record header use BigEndian value"),0)
+
+CB_FLAG (cb_flag_copy_partial_replace, "copy-partial-replace",
+	 N_("COPY REPLACING == xxx == use partial replacement as MF"),0)
+
+CB_FLAG (cb_flag_copy_default_leading, "copy-default-leading",
+	 N_("COPY REPLACING == xxx == use is LEADING by default"),0)
+
+CB_FLAG (cb_flag_copy_exec_replace, "copy-exec-replace",
+	 N_("COPY REPLACING == xxx == also process EXEC / END-EXEC block"),0)
+
+CB_FLAG (cb_flag_file_optional_mf, "mf-file-optional",
+	 N_("Return file status 05 when flag optional-file enabled"),0)
+
+CB_FLAG (cb_flag_index_optimize, "index-optimize",
+	 N_("Optimization by buffering index"),0)
+
+CB_FLAG (cb_flag_decimal_optimize, "decimal-optimize",
+	 N_("Optimization by buffering decimals"),0)
+
+CB_FLAG (cb_flag_record_depending_iso, "record-depending-iso",
+	 N_("RECORD DEPENDING clause compatible ISO"),0)
+	 
+CB_FLAG (cb_flag_all_external_link, "all-external-link",
+	 N_("All CALL assume symbol is external-link"),0)
+
+#ifdef __linux__
+CB_FLAG (cb_flag_C_data_preinit, "C-data-init",
+	 N_("C data structure initialize in object"),
+     1)
+#else
+CB_FLAG (cb_flag_C_data_preinit, "C-data-init",
+	 N_("C data structure initialize in object"),
+     0)
+#endif
+
+CB_FLAG (cb_flag_carealia_sign, "carealia-sign",
+	 N_("Use CA Realia sign coding for Usiage Display"),0)
+
+CB_FLAG (cb_flag_call_using_comp5_as_comp, "call-comp5-as-comp",
+	 N_("Use comp5 as comp when passing in a call parameter"),0)
+
+CB_FLAG (cb_flag_continuation_line, "continuation-line",
+	 N_("Enable a hyphen placed before the begining of continuation line"),0)
+
+CB_FLAG (cb_flag_use_debugdb, "debugdb",
+	 N_("When used with -g debugging info is stored in module.dbd at same place than the object, unless -debugdb= is used"),0)
+
+CB_FLAG (cb_flag_value_size_auto, "value-size-is-auto",
+	 N_("CALL BY VALUE, SIZE is AUTO by default (normal is SIZE IS 4)"),0)
+
+CB_FLAG (cb_flag_makesyn_prepro_patch, "makesyn-patch-preprocess",
+	 N_("MAKESYN will change the output of preprocessed file"),0)
+
+CB_FLAG (cb_flag_rw_after_prepro, "rw-after-preprocess",
+	 N_("SPCRW2 is run after the -preprocess script (before else)"),0)
+
+CB_FLAG (cb_flag_rw_auto, "auto-sprwr",
+	 N_("SPCRW2 is run automaticaly when needed before -preprocess "),1)
+
+CB_FLAG (cb_flag_unstring_use_move, "unstring-use-move",
+	 N_("UNSTRING perform a MOVE PIC X to the INTO field instead of a raw copy "),0)
+
+CB_FLAG (cb_flag_ibm_mode, "ibm-mainframe",
+	 N_("Set compiler and runtime in a IBM Mainframe compatible mode "),0)
+
+CB_FLAG (cb_flag_ibm_display, "display-ibm",
+	 N_("Set runtime DISPLAY more compatible with IBM Mainframe "),0)
+
+CB_FLAG (cb_flag_all_external_call, "all-external-call",
+	 N_("EXPERIMENTAL: all call are external "),0)
+
+CB_FLAG (cb_flag_rw_mode_nopf, "rw-mode-nopf",
+	 N_("Force report writer to use MODE NOPF "),0)
+
+CB_FLAG (cb_flag_rw_mode_nopf_dos, "rw-mode-nopf-dos",
+	 N_("Force report writer to use MODE NOPF With CR/LF "),0)
+
+CB_FLAG (cb_flag_fdclear, "fdclear",
+	 N_("INITIALIZE the record after each WRITE"),0)
+
+CB_FLAG (cb_flag_experimental, "experimental",
+	 N_("(CIT Only) Use experimental code"),0)
+
+CB_FLAG (cb_flag_line_seq_dos, "line-seq-dos",
+	 N_("line sequential End Of Record is <CR><LF>"),0)
+
+CB_FLAG (cb_flag_strict_compare_low, "strict-compare-low",
+	 N_("display numeric variables containing low values not equal to zero or spaces when compared"),0)
+
+CB_FLAG (cb_flag_old_disp_to_int, "compat-display-to-int",
+	 N_("use old (< 3.10.5) display to int"),0)
+
+CB_FLAG (cb_flag_loosy_comment, "loosy-comment",
+	 N_("accept a * in column 8 as a comment start"),0)
+
+CB_FLAG (cb_flag_keep_unused_var, "keep-unused",
+	 N_("Allocate unused level 01/77 field"),1)
+
+CB_FLAG (cb_perform_osvs, "perform-osvs", 
+     N_("Perform return like COBOL-OSVS"), 0)
+
+CB_FLAG (cb_value_id_priority, "value-of-id-priority",
+	 N_("The FD VALUE OF ID clause overwrite the SELECT ASSIGN clause"),0)
+
+CB_FLAG (cb_flag_xparse_event, "xparse-event",
+	 N_("XML PARSE generates START-DOCUMENT and END-DOCUMENT events"),0)
+
+CB_FLAG (cb_flag_numval_validate, "numval-validate",
+	 N_("validate argument 1 of NUMVAL function"),0)
+
+CB_FLAG (cb_flag_validate_dep_on, "validate-dep-on",
+	 N_("check setting of DEPENDING ON value at runtime"),0)
+
+CB_FLAG (cb_free_thread_safe_data, "free-thread-safe-data",
+	 N_("When used with -thread-safe, will free modules data after CANCEL event if not FULL-CANCEL"),0)
+
+CB_FLAG (cb_move_all_edited, "move-all-edited",
+	 N_("MOVE ALL \"X\" TO edited take care of the picture"),0)
+
+CB_FLAG (cb_prepro_cut_line, "prepro_cut_line",
+	 N_("when preparing file for preprocess, cut to 72 col"),1)
+
+CB_FLAG (cb_flag_read_into_copy, "read-into-copy",
+	 N_("READ INTO statement copies data rather than performing a MOVE"),0)
+
+CB_FLAG (cb_flag_binary_byteorder_native, "binary-byteorder-native",
+	 N_("set binary-byteorder to native"),0)
+
+CB_FLAG (cb_flag_binary_byteorder_big_endian, "binary-byteorder-big-endian",
+	 N_("set binary-byteorder to big-endian"),0)
+

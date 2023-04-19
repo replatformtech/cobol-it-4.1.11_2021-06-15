@@ -1,0 +1,25 @@
+#!/bin/sh
+# Copyright (C) COBOL-IT
+#
+
+if [ "x$1" = "x" ]
+then
+	echo "Usage :"
+	echo "       checkmd5 <hashfile.md5>"
+	echo " "
+	echo " Please provide .md5 hash file"
+else
+	PATH=$PATH:./bin
+	md5deep  -k  -X $1 -r bin lib share
+        if [ $? != 0 ]
+        then
+            echo " *****************"
+	    echo " **    ERROR    **"
+            echo " *****************"
+            echo " Listed file do not pass MD5 check"
+        else 
+            echo " All file pass MD5 check."
+        fi
+fi
+
+

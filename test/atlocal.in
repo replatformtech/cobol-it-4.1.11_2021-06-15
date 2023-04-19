@@ -1,0 +1,43 @@
+CC="@CC@"
+SHREXT="@COB_MODULE_EXT@"
+SHROPT="@COB_SHARED_OPT@ @COB_PIC_FLAGS@ @CFLAGS@ @LDFLAGS@"
+COB_BIGENDIAN="@COB_BIGENDIAN@"
+#PATH="${abs_top_builddir}/cobc:${abs_top_builddir}/bin:${abs_top_builddir}/libcob/.libs:${PATH}"
+#COBC="${abs_top_builddir}/cobc/cobc"
+#COBCRUN="${abs_top_builddir}/bin/cobcrun"
+COBC="cobc"
+COBCRUN="cobcrun"
+
+TEMPLATE="../../data-rep.src"
+USERPROG="../../user.src/users"
+
+FLAGS="-std=cobol2002 -g -G -save-temps -Wall -Wno-bdb -fno-realpath ${COBOL_FLAGS}"
+COMPILE="${COBC} -x ${FLAGS}"
+COMPILE_ONLY="${COBC} -fsyntax-only ${FLAGS}"
+COMPILE_MODULE="${COBC} -m ${FLAGS}"
+COMPILE_OBJ="${COBC} -c ${FLAGS}"
+
+#COB_CFLAGS="-I${abs_top_srcdir} @COB_CFLAGS@"
+#COB_LDFLAGS="-L${abs_top_builddir}/libcob/.libs @COB_LDFLAGS@"
+#COB_LIBS="-L${abs_top_builddir}/libcob/.libs -l@COB_LIB_NAME@ @LIBCOB_LIBS@"
+#COB_CONFIG_DIR="${abs_top_srcdir}/config"
+#COB_COPY_DIR="${abs_top_srcdir}/copy"
+#LD_LIBRARY_PATH="${abs_top_builddir}/libcob/.libs:$LD_LIBRARY_PATH"
+#DYLD_LIBRARY_PATH="${abs_top_builddir}/libcob/.libs:$DYLD_LIBRARY_PATH"
+#"SHLIB_PATH="${abs_top_builddir}/libcob/.libs:$SHLIB_PATH"
+#LIBPATH="${abs_top_builddir}/libcob/.libs:$LIBPATH"
+COB_DUMP=NO
+COB_STDUNIX=1
+
+export COB_CFLAGS
+export COB_LDFLAGS
+export COB_LIBS
+export COB_CONFIG_DIR
+export COB_COPY_DIR
+export LD_LIBRARY_PATH
+export DYLD_LIBRARY_PATH
+export SHLIB_PATH
+export LIBPATH
+export COB_DUMP
+export COB_STDUNIX
+export COB_LIBRARY_PATH=.

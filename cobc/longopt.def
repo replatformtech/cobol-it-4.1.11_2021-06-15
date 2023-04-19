@@ -1,0 +1,95 @@
+/*							-*- c -*-
+ * Copyright (C) 2003-2007 Keisuke Nishida
+ * Copyright (C) 2007 Roger While
+  * Copyright (C) 2008-2020 Cobol-IT
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this software; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 51 Franklin Street, Fifth Floor
+ * Boston, MA 02110-1301 USA
+ */
+
+/*
+   CB_LONGOPT_BOOLEAN(name, val, var) 
+   CB_LONGOPT_SET(name, var, setval, setvar)
+   CB_LONGOPT_STRING(name, val, var)
+   CB_LONGOPT_OPT(name, val, var)
+   CB_LONGOPT_SHORT(name, val, var) 
+ */
+CB_LONGOPT_SHORT  ("o", 'o', cb_o)
+CB_LONGOPT_SHORT  ("t", 't', cb_t)
+CB_LONGOPT_SHORT  ("I", 'I', cb_I)
+CB_LONGOPT_SHORT  ("L", 'L', cb_L)
+CB_LONGOPT_SHORT  ("l", 'l', cb_l)
+CB_LONGOPT_SHORT  ("D", 'D', cb_D)
+CB_LONGOPT_SHORT  ("r", 'r', cb_r)
+CB_LONGOPT_SHORT  ("R", 'R', cb_R)
+CB_LONGOPT_BOOLEAN("b", 'b', cb_b)
+CB_LONGOPT_BOOLEAN("c", 'c', cb_c)
+CB_LONGOPT_BOOLEAN("C", 'C', cb_C)
+CB_LONGOPT_BOOLEAN("code-cover", ')', cb_code_cover)
+CB_LONGOPT_STRING ("codepage", '[', cb_codepage) 
+CB_LONGOPT_STRING ("conf", '&', cb_conf)
+CB_LONGOPT_STRING ("constant", '3', cb_constant)
+CB_LONGOPT_BOOLEAN("debug", '4', cb_debug)
+CB_LONGOPT_STRING ("debugdb", 309, cb_debugdb_opt)
+CB_LONGOPT_BOOLEAN("dump-config", 305, cb_dump_config)
+CB_LONGOPT_BOOLEAN("E", 'E', cb_E)
+CB_LONGOPT_STRING ("err", '(', cb_err)
+CB_LONGOPT_STRING ("ext", 'e', cb_ext)
+CB_LONGOPT_BOOLEAN("g", 'g', cb_g)
+CB_LONGOPT_BOOLEAN("G", 'G', cb_G)
+CB_LONGOPT_BOOLEAN("help", 'h', cb_help)
+CB_LONGOPT_STRING ("initcall", 308, cb_initcall)
+CB_LONGOPT_STRING ("linkage-desc", 'a', cb_linkage_desc)
+CB_LONGOPT_BOOLEAN("list-intrinsics", 'Q', cb_list_intrinsics_opt)
+CB_LONGOPT_BOOLEAN("list-mnemonics", 'q', cb_list_mnemonics_opt)
+CB_LONGOPT_BOOLEAN("list-reserved", '9', cb_list_reserved_opt)
+CB_LONGOPT_BOOLEAN("m", 'm', cb_m)
+CB_LONGOPT_STRING ("makesyn", 304, cb_makesyn)
+CB_LONGOPT_STRING ("MF", '@', cb_MF)
+CB_LONGOPT_STRING ("MT", '%', cb_MT)
+CB_LONGOPT_BOOLEAN("O", 'O', cb_O)
+CB_LONGOPT_BOOLEAN("O0", '0', cb_O0)
+CB_LONGOPT_BOOLEAN("O1", 312, cb_O1)
+CB_LONGOPT_BOOLEAN("O2", '2', cb_O2)
+CB_LONGOPT_BOOLEAN("Os", '1', cb_Os)
+CB_LONGOPT_STRING ("preprocess", 'p', cb_preprocess)
+CB_LONGOPT_BOOLEAN("S", 'S', cb_S)
+CB_LONGOPT_OPT    ("save-temps", '_', cb_save_temps)
+CB_LONGOPT_STRING ("source-codepage", ']', cb_source_codepage_opt)
+CB_LONGOPT_STRING ("std", '$', cb_std)
+CB_LONGOPT_STRING ("syserr", 303, cb_syserr)
+CB_LONGOPT_STRING ("sysin", 301, cb_sysin)
+CB_LONGOPT_STRING ("sysout", 302, cb_sysout)
+CB_LONGOPT_STRING ("sysprint", 400, cb_sysprint)
+CB_LONGOPT_STRING ("temps-dir", 310, cb_temps_dir)
+CB_LONGOPT_STRING ("use-extfh", '#', cb_use_extfh)
+CB_LONGOPT_STRING ("use-extsm", '*', cb_use_extsm)
+CB_LONGOPT_BOOLEAN("verbose", 'v', cb_verbose)
+CB_LONGOPT_BOOLEAN("version", 'V', cb_version)
+CB_LONGOPT_BOOLEAN("w", 'w', cb_w)
+CB_LONGOPT_BOOLEAN("Wall", 'W', cb_Wall)
+CB_LONGOPT_STRING ("Wc", '8', cb_Wc)
+CB_LONGOPT_STRING ("Wl", '7', cb_Wl)
+CB_LONGOPT_BOOLEAN("Wnone", '6', cb_Wnone)
+CB_LONGOPT_BOOLEAN("x", 'x', cb_x)
+CB_LONGOPT_SET("free", cb_free, CB_FORMAT_FREE, cb_source_format)
+CB_LONGOPT_SET("fixed", cb_fixed, CB_FORMAT_FIXED, cb_source_format)
+#ifdef WITH_ICU
+    CB_LONGOPT_BOOLEAN("list-codepage", 306, cb_list_codepage)
+    CB_LONGOPT_STRING ("check-codepage", 307, cb_check_codepage)
+#endif
+CB_LONGOPT_STRING ("xdd-prefix", 313, cb_xdd_prefix)
+
+

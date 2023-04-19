@@ -1,0 +1,63 @@
+#static symbol list for Tuxedo
+# Value: Symbols to be genarated as static ref when used in a call
+# (case dependent)
+# eg: 
+#static-link: myfunc 
+#     CALL "myfunc"  will generate a myfunc() 
+#
+external-link: TPABORT
+external-link: TPACALL
+external-link: TPADVERTISE
+external-link: TPBEGIN
+external-link: TPBROADCAST
+external-link: TPCALL
+external-link: TPCANCEL
+external-link: TPCHKAUTH
+external-link: TPCHKUNSOL
+external-link: TPCLOSE
+external-link: TPCOMMIT
+external-link: TPCONNECT
+external-link: TPDEQUEUE
+external-link: TPDISCON
+external-link: TPENQUEUE
+external-link: TPFORWARD
+external-link: TPGBLKTIME
+external-link: TPGETCTXT
+external-link: TPGETLEV
+external-link: TPGETRPLY
+external-link: TPGETUNSOL
+external-link: TPGPRIO
+external-link: TPINITIALIZE
+external-link: TPKEYSETINFO
+external-link: TPKEYGETINFO
+external-link: TPKEYCLOSE
+external-link: TPKEYOPEN
+external-link: TPNOTIFY
+external-link: TPOPEN
+external-link: TPPOST
+external-link: TPRECV
+external-link: TPRESUME
+external-link: TPRETURN
+external-link: TPSBLKTIME
+external-link: TPSCMT
+external-link: TPSEND
+external-link: TPSETCTXT
+external-link: TPSETUNSOL
+external-link: TPSPRIO
+external-link: TPSUBSCRIBE
+external-link: TPSUSPEND
+external-link: TPSVCSTART
+external-link: TPSVRDONE
+external-link: TPSVRINIT
+external-link: TPTERM
+external-link: TPUNADVERTISE
+external-link: TPUNSUBSCRIBE
+external-link: TXBEGIN
+external-link: TXCLOSE
+external-link: TXCOMMIT
+external-link: TXINFORM
+external-link: TXOPEN
+external-link: TXROLLBACK
+external-link: TXSETCOMMITRET
+external-link: TXSETTRANCTL
+external-link: TXSETTIMEOUT

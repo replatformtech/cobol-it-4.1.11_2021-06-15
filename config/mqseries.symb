@@ -1,0 +1,35 @@
+#static symbol list for MQ Serie 
+# Value: Symbols to be genarated as static ref when used in a call
+# (case dependent)
+# eg: 
+#staticx-link: myfunc 
+#     CALL "myfunc"  will generate a myfunc() 
+#
+staticx-link: MQBACK 
+staticx-link: MQBEGIN 
+staticx-link: MQBUFMH 
+staticx-link: MQCB 
+staticx-link: MQCLOSE 
+staticx-link: MQCMIT 
+staticx-link: MQCONN 
+staticx-link: MQCONNX 
+staticx-link: MQCRTMH 
+staticx-link: MQCTL 
+staticx-link: MQDISC 
+staticx-link: MQDLTMH 
+staticx-link: MQDLTMP 
+staticx-link: MQGET 
+staticx-link: MQINQ 
+staticx-link: MQINQMP 
+staticx-link: MQInterface 
+staticx-link: MQMBID 
+staticx-link: MQMHBUF 
+staticx-link: MQOPEN 
+staticx-link: MQPUT 
+staticx-link: MQPUT1 
+staticx-link: MQSET 
+staticx-link: MQSETMP 
+staticx-link: MQSTAT 
+staticx-link: MQSUB 
+staticx-link: MQSUBRQ
+

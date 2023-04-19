@@ -1,0 +1,4 @@
+COPY
+USE  stockcli.lseq RECORD F 143 ORG LS
+GIVE  stockcli_idx RECORD F 143 ORG IX KEY=(1,16,P ,19,10,AD,1,4,A ,9,4,C,5,4,C,13,4,C,29,16,AD)
+ERROR  stockcli.err RECORD F 143 ORG LS

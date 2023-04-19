@@ -1,0 +1,534 @@
+### OpenCOBOL Test Suite				-*- m4 -*-
+
+## Copyright (C) 2004-2007 Keisuke Nishida
+## Copyright (C) 2007 Roger While
+## Copyright (C) 2008 Cobol-IT
+##
+## This program is free software; you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation; either version 2, or (at your option)
+## any later version.
+## 
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+## 
+## You should have received a copy of the GNU General Public License
+## along with this software; see the file COPYING.  If not, write to
+## the Free Software Foundation, 51 Franklin Street, Fifth Floor
+## Boston, MA 02110-1301 USA
+
+
+AT_SETUP([COPY: file not found])
+AT_KEYWORDS([copy])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       COPY "copy.inc".
+       PROCEDURE        DIVISION.
+           STOP RUN.
+])
+
+AT_CHECK([${COMPILE_ONLY} prog.cob], [1], ,
+[prog.cob:6: Error: copy.inc: No such file or directory
+])
+
+AT_CLEANUP
+
+
+AT_SETUP([COPY: replacement order])
+AT_KEYWORDS([copy])
+
+AT_DATA([copy.inc], [
+       01 TEST-VAR PIC X(2) VALUE "OK".
+])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       COPY "copy.inc"
+          REPLACING ==TEST-VAR== BY ==FIRST-MATCH==
+                    ==TEST-VAR== BY ==SECOND-MATCH==.
+       PROCEDURE        DIVISION.
+           DISPLAY FIRST-MATCH NO ADVANCING
+           END-DISPLAY.
+           STOP RUN.
+])
+
+AT_CHECK([${COMPILE} -o prog prog.cob])
+AT_CHECK([./prog], [0], [OK])
+
+AT_CLEANUP
+
+
+AT_SETUP([COPY: separators])
+AT_KEYWORDS([copy])
+
+AT_DATA([copy.inc], [
+       01 TEST-VAR PIC X(2) VALUE "OK".
+])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       COPY "copy.inc"
+          REPLACING ==TEST-VAR==, BY ==FIRST-MATCH==,
+                 ,  ==TEST-VAR==; BY ==SECOND-MATCH==;
+                 ;  ==TEST-VAR== , BY ==THIRD-MATCH==
+                    ==TEST-VAR== ; BY ==FOURTH-MATCH==.
+       PROCEDURE        DIVISION.
+           DISPLAY FIRST-MATCH NO ADVANCING
+           END-DISPLAY.
+           STOP RUN.
+])
+
+AT_CHECK([${COMPILE} -o prog prog.cob])
+AT_CHECK([./prog], [0], [OK])
+
+AT_CLEANUP
+
+
+AT_SETUP([COPY: partial replacement])
+AT_KEYWORDS([copy])
+
+AT_DATA([copy.inc], [
+       01 :TEST:-VAR PIC X(2) VALUE "OK".
+       01 (TEST)-VAR PIC X(2) VALUE "OK".
+])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       COPY "copy.inc"
+          REPLACING ==:TEST:== BY ==COLON==
+	            ==(TEST)== BY ==PAREN==.
+       PROCEDURE        DIVISION.
+           DISPLAY COLON-VAR NO ADVANCING
+           END-DISPLAY.
+           DISPLAY PAREN-VAR NO ADVANCING
+           END-DISPLAY.
+           STOP RUN.
+])
+
+AT_CHECK([${COMPILE} -o prog prog.cob])
+AT_CHECK([./prog], [0], [OKOK])
+
+AT_CLEANUP
+
+
+AT_SETUP([COPY: recursive replacement])
+AT_KEYWORDS([copy])
+
+AT_DATA([copy-2.inc], [
+       01 TEST-VAR PIC X(2) VALUE "OK".
+])
+
+AT_DATA([copy-1.inc], [
+       COPY "copy-2.inc".
+])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       COPY "copy-1.inc"
+           REPLACING ==TEST-VAR== BY ==COPY-VAR==.
+       PROCEDURE        DIVISION.
+           DISPLAY COPY-VAR NO ADVANCING
+           END-DISPLAY.
+           STOP RUN.
+])
+
+AT_CHECK([${COMPILE} -o prog prog.cob])
+AT_CHECK([./prog], [0], [OK])
+
+AT_CLEANUP
+
+AT_SETUP([COPY: copy in remark])
+AT_KEYWORDS([copy])
+
+AT_DATA([COMI], [
+	Comment et comment .
+])
+
+AT_DATA([ENVI], [
+	ENVIRONMENT DIVISION.
+	CONFIGURATION SECTION.
+	SPECIAL-NAMES. DECIMAL-POINT IS COMMA.
+
+])
+
+AT_DATA([TEST], [
+	01 W-HMS PIC 9(6) VALUE 104827.
+	01 HMS PIC 99.99.99.
+])
+
+
+AT_DATA([prog.cob], [
+        IDENTIFICATION DIVISION.
+        PROGRAM-ID. prog.
+        AUTHOR. YASSINE.
+        COPY COMI.
+        COPY ENVI.
+        DATA DIVISION.
+        WORKING-STORAGE SECTION.
+        COPY TEST.
+        PROCEDURE DIVISION.
+        MOVE W-HMS TO HMS.
+        DISPLAY HMS.
+        EXIT PROGRAM.
+])
+
+AT_CHECK([${COMPILE} -o prog prog.cob])
+AT_CHECK([./prog], [0], 
+[10.48.27
+])
+
+AT_CLEANUP
+
+AT_SETUP([COPY: use of $COBCPY])
+AT_KEYWORDS([copy])
+
+AT_CHECK([mkdir dir1])
+AT_CHECK([mkdir dir2])
+
+AT_DATA([dir2/copy-2.cpy], [
+       01 TEST-VAR2 PIC X(2) VALUE "IK".
+])
+
+AT_DATA([dir2/copy-1.inc], [
+       01 TEST-VAR1 PIC X(2) VALUE "OK".
+])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       copy copy-1.inc.
+       copy copy-2.
+       PROCEDURE        DIVISION.
+           DISPLAY TEST-VAR1 TEST-VAR2 NO ADVANCING
+           END-DISPLAY.
+           STOP RUN.
+])
+
+AT_CHECK([export COBCPY=./dir1:./dir2 && ${COMPILE} -o prog prog.cob])
+AT_CHECK([./prog], [0], [OKIK])
+
+AT_CLEANUP
+
+AT_SETUP([COPY: REPLACE **])
+AT_KEYWORDS([copy])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. prog.
+       DATA DIVISION.
+      *--------------  DESCRIPTION DES ZONES -------------------------*
+       WORKING-STORAGE SECTION.
+       01 PARAM PIC 9(5).
+       01 W-NOMBRE PIC 9(5).
+      *===============================================================*
+      *                         TRAITEMENT                            *
+      *===============================================================*
+       PROCEDURE DIVISION.
+       DEB-PGM.
+       COPY TESTSTAR   REPLACING
+            DDDDD BY 00
+            XXX   BY  PARAM.
+       FIN-PGM.
+       GOBACK.
+      *===============================================================*
+])
+
+AT_DATA([TESTSTAR], [
+         COMPUTE XXX = W-NOMBRE / 10 ** DDDDD.
+])
+
+AT_CHECK([${COMPILE} -w -E prog.cob | grep COMPUTE], [0],
+[         COMPUTE PARAM = W-NOMBRE / 10 ** 00.
+])
+AT_CLEANUP
+
+AT_SETUP([COPY: REPLACE with space])
+AT_KEYWORDS([copy])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       ENVIRONMENT      DIVISION.
+       CONFIGURATION SECTION.
+       WORKING-STORAGE SECTION.
+
+       COPY "test"
+         REPLACING  ==AA==
+         BY         ==AA EXTERNAL==
+                    ==01 CC==
+         BY         ==   03 CC==.
+
+         PROCEDURE DIVISION.
+         .
+])
+
+AT_DATA([test], [
+          01 AA.
+             03  AA1 PIC 9.
+          01 CC PIC XXX.
+          01 DD PIC 9.
+])
+
+AT_CHECK([${COMPILE} -w -E prog.cob| tail -n 10], [0],
+[
+          01 AA EXTERNAL.
+             03  AA1 PIC 9.
+          03 CC PIC XXX.
+          01 DD PIC 9.
+
+
+         PROCEDURE DIVISION.
+         .
+      *##
+])
+AT_CLEANUP
+
+AT_SETUP([COPY: REPLACE IN COPY])
+AT_KEYWORDS([copy])
+
+AT_DATA([prog.cob], [
+           CBL TRUNC(OPT)
+       Identification Division.
+       Program-ID. prog.
+       ENVIRONMENT DIVISION.
+       CONFIGURATION SECTION.
+       Data Division.
+       Working-Storage Section.  
+I03      01  CPGPU300                      PIC  X(8)  VALUE  'CPGPU300'.
+           COPY  CPGP0300.
+           COPY  CPGP0100 REPLACING ==01  :PFX:-AREA.==  BY ====
+                                    ==:PFX:==            BY ==CP0300==.
+       Procedure Division.
+       Mainline.
+           MOVE  SPACE                    TO  CP0300-RECORD
+           MOVE  'READ'                   TO  CP0300-FUNZIONE
+           MOVE  LUNG-MASSIMA-PARAMETRO   TO  CP0300-LUNGHEZZA-PARAMETRO.
+       STOP RUN.
+])
+
+AT_DATA([CPGP0300.CPY], [
+       01  CP0300-AREA.
+         02  CP0300-NOMECOPY                PIC  X(8)  VALUE 'CPGP0300'.
+         02  CP0300-VERSIONE                   PIC  X(3)  VALUE '001'.
+         02  CP0300-RETCODE                    PIC  9(2)  VALUE ZERO.
+         02  CP0300-RESCODE                    PIC  9(3)  VALUE ZERO.
+         02  CP0300-MESSAGGIO                  PIC  X(80).
+         02  CP0300-FUNZIONE                   PIC  X(8)  VALUE SPACE.
+         02  CP0300-RECORD.
+])
+AT_DATA([CPGP0100.CPY], [
+        REPLACE == LUNG-MASSIMA-PARAMETRO == BY == 8000 ==.
+       01  :PFX:-AREA.
+         03  :PFX:-CHIAVE.
+            05  :PFX:-TABELLA                PIC  X(8).
+            05  :PFX:-IDENTIFICATIVO         PIC  X(40).
+            05  :PFX:-VERSIONE-DATI          PIC  X.
+         03  :PFX:-DATI.
+            05  :PFX:-ORIGINE                PIC  X(8).
+            05  :PFX:-CAUSALE                PIC  X.
+            05  :PFX:-DATA-AGG               PIC  X(8).
+            05  :PFX:-ORA-AGG                PIC  X(8).
+            05  :PFX:-ISTITUTO               PIC  X(2).
+            05  :PFX:-LUNGHEZZA-PARAMETRO    PIC  9(5).
+            05  :PFX:-PARAMETRO.
+              07  FILLER                     PIC  X
+                  OCCURS    0  TO  LUNG-MASSIMA-PARAMETRO
+                  DEPENDING ON :PFX:-LUNGHEZZA-PARAMETRO.
+])
+
+
+AT_CHECK([${COMPILE} -w -E prog.cob| tail -n 20], [0],
+[            05  CP0300-VERSIONE-DATI          PIC  X.
+         03  CP0300-DATI.
+            05  CP0300-ORIGINE                PIC  X(8).
+            05  CP0300-CAUSALE                PIC  X.
+            05  CP0300-DATA-AGG               PIC  X(8).
+            05  CP0300-ORA-AGG                PIC  X(8).
+            05  CP0300-ISTITUTO               PIC  X(2).
+            05  CP0300-LUNGHEZZA-PARAMETRO    PIC  9(5).
+            05  CP0300-PARAMETRO.
+              07  FILLER                     PIC  X
+                  OCCURS    0  TO  8000
+                  DEPENDING ON CP0300-LUNGHEZZA-PARAMETRO.
+
+       Procedure Division.
+       Mainline.
+           MOVE  SPACE                    TO  CP0300-RECORD
+           MOVE  'READ'                   TO  CP0300-FUNZIONE
+           MOVE  8000   TO  CP0300-LUNGHEZZA-PARAMETRO
+       STOP RUN.
+      *##
+])
+AT_CLEANUP
+
+AT_SETUP([COPY: REPLACE LEADING/TRAILING])
+AT_KEYWORDS([copy])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. prog
+       ENVIRONMENT DIVISION.
+       CONFIGURATION SECTION.
+       SPECIAL-NAMES.
+       WORKING-STORAGE SECTION.
+
+       COPY COP2 REPLACING LEADING ==0A== BY ==KEYKZP==.
+       COPY COP3 REPLACING TRAILING ==0A== BY ==AAA==.
+       COPY COP2 REPLACING LEADING ==#0A== BY ==KEYKZP==.
+       COPY COP3 REPLACING TRAILING ==#0A== BY ==AAA==.
+       COPY COP2 REPLACING LEADING ==#0A== BY ==TRUC KEYKZP==.
+       COPY COP3 REPLACING TRAILING ==#0A== BY ==TRUC AAA==.
+            
+       PROCEDURE DIVISION.
+])
+
+AT_DATA([COP2.CPY], [
+       01  0A-REC.
+       01  #0A-REC.
+      *     05  #0A-PTN-PTN-K                   PIC X VALUE "F".
+])
+AT_DATA([COP3.CPY], [
+           05  XX-PTN-PTN-#0A                   PIC X VALUE "F".
+           05  XX-PTN-PTN-0A                   PIC X VALUE "F".
+])
+
+AT_CHECK([${COMPILE} -w -E prog.cob| tail -n +5], [0],
+[
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. prog
+       ENVIRONMENT DIVISION.
+       CONFIGURATION SECTION.
+       SPECIAL-NAMES.
+       WORKING-STORAGE SECTION.
+
+
+      *>"COP2.CPY"
+
+       01  KEYKZP-REC.
+       01  #KEYKZP-REC.
+      *>     05  #0A-PTN-PTN-K                   PIC X VALUE "F".
+
+
+      *>"COP3.CPY"
+
+           05  XX-PTN-PTN-#AAA                   PIC X VALUE "F".
+           05  XX-PTN-PTN-AAA                   PIC X VALUE "F".
+
+
+      *>"COP2.CPY"
+
+       01  0A-REC.
+       01  KEYKZP-REC.
+      *>     05  #0A-PTN-PTN-K                   PIC X VALUE "F".
+
+
+      *>"COP3.CPY"
+
+           05  XX-PTN-PTN-AAA                   PIC X VALUE "F".
+           05  XX-PTN-PTN-0A                   PIC X VALUE "F".
+
+
+      *>"COP2.CPY"
+
+       01  0A-REC.
+       01  TRUC KEYKZP-REC.
+      *>     05  #0A-PTN-PTN-K                   PIC X VALUE "F".
+
+
+      *>"COP3.CPY"
+
+           05  XX-PTN-PTN-TRUC AAA                   PIC X VALUE "F".
+           05  XX-PTN-PTN-0A                   PIC X VALUE "F".
+
+
+       PROCEDURE DIVISION.
+      *##
+])
+AT_CLEANUP
+
+
+AT_SETUP([Environment Variables in COPY])
+AT_DATA([runit], 
+[export env0='./' enva='aaa' envb='bbbbb' envc='cc' envd='dddd'
+export enva_='aaa.' envb_='bbbbb.' envc_='cc.' envd_='dddd.'
+touch aaa.bbbbb.cc.dddd.testfile
+])
+
+AT_DATA([prog.cob], [
+	IDENTIFICATION DIVISION.
+	PROGRAM-ID. prog.
+	ENVIRONMENT DIVISION.
+	INPUT-OUTPUT SECTION.
+	DATA DIVISION.
+	WORKING-STORAGE SECTION.
+	PROCEDURE DIVISION.
+           COPY "./aaa.bbbbb.cc.dddd.testfile".
+           COPY "$enva.$envb.$envc.$envd.testfile".
+           COPY "env0:enva_:envb_:envc_:envd_:testfile".
+           COPY "env0:enva_:envb_:envc_:$envd.testfile".
+	STOP RUN RETURNING 0.
+])
+AT_CHECK([. ./runit && ${COMPILE_ONLY} prog.cob], [0])
+AT_CLEANUP
+
+AT_SETUP([Environment Variables in SELECT])
+AT_DATA([runit], 
+[export env0='./' enva='aaa' envb='bbbbb' envc='cc' envd='dddd'
+export enva_='aaa.' envb_='bbbbb.' envc_='cc.' envd_='dddd.'
+touch aaa.bbbbb.cc.dddd.testfile1
+touch aaa.bbbbb.cc.dddd.testfile2
+touch aaa.bbbbb.cc.dddd.testfile3
+touch aaa.bbbbb.cc.dddd.testfile4
+])
+AT_DATA([prog.cob], [
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. prog.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT F1 ASSIGN TO "./aaa.bbbbb.cc.dddd.testfile1".
+	   SELECT F2 ASSIGN TO "$enva.$envb.$envc.$envd.testfile2".
+	   SELECT F3 ASSIGN TO "env0:enva_:envb_:envc_:envd_:testfile3".
+	   SELECT F4 ASSIGN TO "env0:enva_:envb_:envc_:$envd.testfile4".
+       DATA DIVISION.
+       FILE SECTION.
+       FD F1.
+       01 A1 PIC X(80).
+       FD F2.
+       01 A2 PIC X(80).
+       FD F3.
+       01 A3 PIC X(80).
+       FD F4.
+       01 A4 PIC X(80).
+       WORKING-STORAGE SECTION.
+       PROCEDURE DIVISION.
+           OPEN INPUT F1
+           OPEN INPUT F2
+           OPEN INPUT F3
+           OPEN INPUT F4
+           STOP RUN RETURNING 0.
+])
+AT_CHECK([${COMPILE} prog.cob], [0])
+AT_CHECK([. ./runit && ./prog], [0])
+AT_CLEANUP
+

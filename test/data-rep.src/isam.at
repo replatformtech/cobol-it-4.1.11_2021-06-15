@@ -1,0 +1,1581 @@
+### Cobol-IT Test Suite				-*- m4 -*-
+
+## Copyright (C) 2008 Cobol-IT
+##
+## This program is free software; you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation; either version 2, or (at your option)
+## any later version.
+## 
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+## 
+## You should have received a copy of the GNU General Public License
+## along with this software; see the file COPYING.  If not, write to
+## the Free Software Foundation, 51 Franklin Street, Fifth Floor
+## Boston, MA 02110-1301 USA
+
+### ISO+IEC+1989-2002 14.8.1 ACCEPT statement
+
+AT_SETUP([RELFIX])
+
+AT_CHECK([${COMPILE} -fmf-relativefile -w ${TEMPLATE}/isam/RELFIX.cob])
+AT_CHECK([./RELFIX], [0],
+[OK
+])
+
+AT_CHECK([od -a relfix_data], [0], 
+[0000000   0   0   0   1   R   E   C  sp   W   R   I   T   T   E   N  sp
+0000020  sp  sp  sp   2   -   U   P   D  sp   Y   E   T  sp   0   0   0
+0000040   0   9 nul soh nul nul nul nul  us nul   0   0   0   2   R   E
+0000060   C  sp   W   R   I   T   T   E   N  sp  sp  sp  sp   1   -   R
+0000100   E   C  sp   R   E   W  sp   0   0   0   0   8 nul stx nul nul
+0000120 nul nul   /  nl   0   0   0   3   R   E   C  sp   W   R   I   T
+0000140   T   E   N  sp  sp  sp  sp   1   -   R   E   C  sp   R   E   W
+0000160  sp   0   0   0   0   7 nul etx nul nul nul nul   ?  nl   0   0
+0000200   0   4   R   E   C  sp   W   R   I   T   T   E   N  sp  sp  sp
+0000220  sp   1   -   R   E   C  sp   R   E   W  sp   0   0   0   0   6
+0000240 nul eot nul nul nul nul   O  nl   0   0   0   5   R   E   C  sp
+0000260   W   R   I   T   T   E   N  sp  sp  sp  sp   1   -   R   E   C
+0000300  sp   R   E   W  sp   0   0   0   0   5 nul enq nul nul nul nul
+0000320   _  nl   0   0   0   6   R   E   C  sp   W   R   I   T   T   E
+0000340   N  sp  sp  sp  sp   1   -   R   E   C  sp   R   E   W  sp   0
+0000360   0   0   0   4 nul ack nul nul nul nul   o  nl   0   0   0   7
+0000400   R   E   C  sp   W   R   I   T   T   E   N  sp  sp  sp  sp   1
+0000420   -   R   E   C  sp   R   E   W  sp   0   0   0   0   3 nul bel
+0000440 nul nul nul nul del  nl   0   0   0   8   R   E   C  sp   W   R
+0000460   I   T   T   E   N  sp  sp  sp  sp   1   -   R   E   C  sp   R
+0000500   E   W  sp   0   0   0   0   2 nul  bs nul nul nul nul  si  nl
+0000520   0   0   0   9   R   E   C  sp   W   R   I   T   T   E   N  sp
+0000540  sp  sp  sp   1   -   R   E   C  sp   R   E   W  sp   0   0   0
+0000560   0   1 nul  ht nul nul nul nul  us  nl   0   0   1   0   R   E
+0000600   C  sp   W   R   I   T   T   E   N  sp  sp  sp  sp   2   -   U
+0000620   P   D  sp   Y   E   T  sp   0   0   0   0   0 nul  nl nul nul
+0000640 nul soh  si nul
+0000644
+])
+
+AT_CLEANUP
+
+AT_SETUP([RELFIX II])
+
+AT_DATA([test.conf], [
+include "mf.conf"
+])
+
+AT_CHECK([cp ${TEMPLATE}/isam/]SUPP-FILE .)
+AT_CHECK([cp ${TEMPLATE}/isam/]T-FILE .)
+AT_CHECK([${COMPILE} -w ${TEMPLATE}/isam/crtrel.cob])
+AT_CHECK([${COMPILE} -w ${TEMPLATE}/isam/dsprel.cob])
+AT_CHECK([${COMPILE} -w ${TEMPLATE}/isam/updrel.cob])
+AT_CHECK([./crtrel ], [0])
+AT_CHECK([./dsprel ], [0],
+[==================================================
+Supplier Code: 01
+Telephone No.: 5146981621
+==================================================
+Supplier Code: 23
+Telephone No.: 5145466541
+==================================================
+Supplier Code: 55
+Telephone No.: 5148412121
+==================================================
+Supplier Code: 99
+Telephone No.: 5147892135
+])
+AT_CHECK([./updrel ], [0],
+[T-supp-code: 23
+supp-key: 23
+entered not invalid key00
+supp-key: 23
+in-supp-code: 23
+in-supp-telephone: 5145466541
+in-supp-telephone: 5149999999
+23WAL-MART            44 REBATE BLVD.               5149999999
+not invalid 00
+T-supp-code: 01
+supp-key: 01
+entered not invalid key00
+supp-key: 01
+in-supp-code: 01
+in-supp-telephone: 5146981621
+in-supp-telephone: 5146666666
+01COSTCO              123 GOOD ROAD                 5146666666
+not invalid 00
+T-supp-code: 66
+supp-key: 66
+Record not found!23
+])
+AT_CHECK([./dsprel ], [0],
+[==================================================
+Supplier Code: 01
+Telephone No.: 5146666666
+==================================================
+Supplier Code: 23
+Telephone No.: 5149999999
+==================================================
+Supplier Code: 55
+Telephone No.: 5148412121
+==================================================
+Supplier Code: 99
+Telephone No.: 5147892135
+])
+
+AT_CHECK([${COMPILE} -w ${TEMPLATE}/isam/crtrel.cob -conf=test.conf])
+AT_CHECK([${COMPILE} -w ${TEMPLATE}/isam/dsprel.cob -conf=test.conf])
+AT_CHECK([${COMPILE} -w ${TEMPLATE}/isam/updrel.cob -conf=test.conf])
+AT_CHECK([./crtrel ], [0])
+AT_CHECK([./dsprel ], [0],
+[==================================================
+Supplier Code: 01
+Telephone No.: 5146981621
+==================================================
+Supplier Code: 23
+Telephone No.: 5145466541
+==================================================
+Supplier Code: 55
+Telephone No.: 5148412121
+==================================================
+Supplier Code: 99
+Telephone No.: 5147892135
+])
+AT_CHECK([./updrel ], [0],
+[T-supp-code: 23
+supp-key: 23
+entered not invalid key00
+supp-key: 23
+in-supp-code: 23
+in-supp-telephone: 5145466541
+in-supp-telephone: 5149999999
+23WAL-MART            44 REBATE BLVD.               5149999999
+not invalid 00
+T-supp-code: 01
+supp-key: 01
+entered not invalid key00
+supp-key: 01
+in-supp-code: 01
+in-supp-telephone: 5146981621
+in-supp-telephone: 5146666666
+01COSTCO              123 GOOD ROAD                 5146666666
+not invalid 00
+T-supp-code: 66
+supp-key: 66
+Record not found!23
+])
+AT_CHECK([./dsprel ], [0],
+[==================================================
+Supplier Code: 01
+Telephone No.: 5146666666
+==================================================
+Supplier Code: 23
+Telephone No.: 5149999999
+==================================================
+Supplier Code: 55
+Telephone No.: 5148412121
+==================================================
+Supplier Code: 99
+Telephone No.: 5147892135
+])
+
+
+AT_CLEANUP
+
+
+AT_SETUP([RELFIX MF I])
+
+AT_DATA([test.conf], [
+include "mf.conf"
+])
+
+AT_CHECK([${COMPILE} -w ${TEMPLATE}/isam/RELFIX.cob -conf=test.conf])
+AT_CHECK([./RELFIX], [0],
+[OK
+])
+AT_CHECK([od -a relfix_data], [0], 
+[0000000   0   0   0   1   R   E   C  sp   W   R   I   T   T   E   N  sp
+0000020  sp  sp  sp   2   -   U   P   D  sp   Y   E   T  sp   0   0   0
+0000040   0   9 nul soh nul nul nul nul  us nul   0   0   0   2   R   E
+0000060   C  sp   W   R   I   T   T   E   N  sp  sp  sp  sp   1   -   R
+0000100   E   C  sp   R   E   W  sp   0   0   0   0   8 nul stx nul nul
+0000120 nul nul   /  nl   0   0   0   3   R   E   C  sp   W   R   I   T
+0000140   T   E   N  sp  sp  sp  sp   1   -   R   E   C  sp   R   E   W
+0000160  sp   0   0   0   0   7 nul etx nul nul nul nul   ?  nl   0   0
+0000200   0   4   R   E   C  sp   W   R   I   T   T   E   N  sp  sp  sp
+0000220  sp   1   -   R   E   C  sp   R   E   W  sp   0   0   0   0   6
+0000240 nul eot nul nul nul nul   O  nl   0   0   0   5   R   E   C  sp
+0000260   W   R   I   T   T   E   N  sp  sp  sp  sp   1   -   R   E   C
+0000300  sp   R   E   W  sp   0   0   0   0   5 nul enq nul nul nul nul
+0000320   _  nl   0   0   0   6   R   E   C  sp   W   R   I   T   T   E
+0000340   N  sp  sp  sp  sp   1   -   R   E   C  sp   R   E   W  sp   0
+0000360   0   0   0   4 nul ack nul nul nul nul   o  nl   0   0   0   7
+0000400   R   E   C  sp   W   R   I   T   T   E   N  sp  sp  sp  sp   1
+0000420   -   R   E   C  sp   R   E   W  sp   0   0   0   0   3 nul bel
+0000440 nul nul nul nul del  nl   0   0   0   8   R   E   C  sp   W   R
+0000460   I   T   T   E   N  sp  sp  sp  sp   1   -   R   E   C  sp   R
+0000500   E   W  sp   0   0   0   0   2 nul  bs nul nul nul nul  si  nl
+0000520   0   0   0   9   R   E   C  sp   W   R   I   T   T   E   N  sp
+0000540  sp  sp  sp   1   -   R   E   C  sp   R   E   W  sp   0   0   0
+0000560   0   1 nul  ht nul nul nul nul  us  nl   0   0   1   0   R   E
+0000600   C  sp   W   R   I   T   T   E   N  sp  sp  sp  sp   2   -   U
+0000620   P   D  sp   Y   E   T  sp   0   0   0   0   0 nul  nl nul nul
+0000640 nul soh  si nul
+0000644
+])
+
+AT_CLEANUP
+
+AT_SETUP([RELFIX MF II])
+
+AT_DATA([test.conf], [
+include: mf.conf
+line-seq-dos:yes
+])
+
+AT_CHECK([${COMPILE} -w ${TEMPLATE}/isam/trel.cob -conf=test.conf])
+AT_CHECK([./trel ${TEMPLATE}/isam/infile.ls], [0],
+[0000000001=100162091
+0000000002=101000001
+0000000003=101000002
+0000000004=101000003
+0000000005=101000004
+0000000006=101000005
+0000000007=101000006
+0000000008=101000007
+0000000009=103283343
+0000000010=104321284
+0000000011=106231560
+0000000012=106578528
+0000000013=111537082
+0000000014=113851980
+0000000015=123346087
+0000000016=133248901
+0000000017=133568113
+0000000018=171562778
+0000000019=201111111
+0000000020=201111113
+0000000021=201111114
+0000000022=201111115
+0000000023=201111116
+0000000024=201111117
+0000000025=201111118
+0000000026=201111119
+0000000027=201201201
+0000000028=201234567
+0000000029=246887110
+0000000030=261198132
+0000000031=261888540
+0000000032=262277908
+0000000033=262846701
+0000000034=263253634
+0000000035=263944149
+0000000036=264083110
+0000000037=264237761
+0000000038=265257761
+0000000039=265456471
+0000000040=266807535
+0000000041=266817345
+0000000042=267590138
+0000000043=267656597
+0000000044=278915948
+0000000045=286286435
+0000000046=297257456
+0000000047=301301301
+0000000048=329343896
+0000000049=352498029
+0000000050=354446453
+0000000051=365762122
+0000000052=368523398
+0000000053=375680899
+0000000054=376152173
+0000000055=376968005
+0000000056=381985654
+0000000057=384652229
+0000000058=387454500
+0000000059=401401401
+0000000060=402657412
+0000000061=413854980
+0000000062=468252871
+0000000063=468807699
+0000000064=475506558
+0000000065=485646231
+0000000066=501501501
+0000000067=501539713
+0000000068=503234567
+0000000069=507298701
+0000000070=510357803
+0000000071=549642706
+0000000072=566378105
+0000000073=568086211
+0000000074=576203511
+0000000075=601601601
+0000000076=620836164
+0000000077=638910654
+0000000078=644123211
+0000000079=652678565
+0000000080=665286528
+0000000081=687580870
+0000000082=701701701
+0000000083=708654532
+0000000084=713815878
+0000000085=729835465
+0000000086=750442987
+0000000087=759052770
+0000000088=769180876
+0000000089=790870501
+0000000090=801801801
+0000000091=829255769
+0000000092=842641287
+0000000093=854168700
+0000000094=855654544
+0000000095=901901901
+0000000096=904671103
+0000000097=908715674
+0000000098=913573290
+0000000099=929788838
+0000000100=942298750
+])
+
+AT_CHECK([${COMPILE} -w ${TEMPLATE}/isam/trelseq.cob -conf=test.conf])
+AT_CHECK([./trelseq], [0],
+[0000000001=100162091
+0000000002=101000001
+0000000003=101000002
+0000000004=101000003
+0000000005=101000004
+0000000006=101000005
+0000000007=101000006
+0000000008=101000007
+0000000009=103283343
+0000000010=104321284
+0000000011=106231560
+0000000012=106578528
+0000000013=111537082
+0000000014=113851980
+0000000015=123346087
+0000000016=133248901
+0000000017=133568113
+0000000018=171562778
+0000000019=201111111
+0000000020=201111113
+0000000021=201111114
+0000000022=201111115
+0000000023=201111116
+0000000024=201111117
+0000000025=201111118
+0000000026=201111119
+0000000027=201201201
+0000000028=201234567
+0000000029=246887110
+0000000030=261198132
+0000000031=261888540
+0000000032=262277908
+0000000033=262846701
+0000000034=263253634
+0000000035=263944149
+0000000036=264083110
+0000000037=264237761
+0000000038=265257761
+0000000039=265456471
+0000000040=266807535
+0000000041=266817345
+0000000042=267590138
+0000000043=267656597
+0000000044=278915948
+0000000045=286286435
+0000000046=297257456
+0000000047=301301301
+0000000048=329343896
+0000000049=352498029
+0000000050=354446453
+0000000051=365762122
+0000000052=368523398
+0000000053=375680899
+0000000054=376152173
+0000000055=376968005
+0000000056=381985654
+0000000057=384652229
+0000000058=387454500
+0000000059=401401401
+0000000060=402657412
+0000000061=413854980
+0000000062=468252871
+0000000063=468807699
+0000000064=475506558
+0000000065=485646231
+0000000066=501501501
+0000000067=501539713
+0000000068=503234567
+0000000069=507298701
+0000000070=510357803
+0000000071=549642706
+0000000072=566378105
+0000000073=568086211
+0000000074=576203511
+0000000075=601601601
+0000000076=620836164
+0000000077=638910654
+0000000078=644123211
+0000000079=652678565
+0000000080=665286528
+0000000081=687580870
+0000000082=701701701
+0000000083=708654532
+0000000084=713815878
+0000000085=729835465
+0000000086=750442987
+0000000087=759052770
+0000000088=769180876
+0000000089=790870501
+0000000090=801801801
+0000000091=829255769
+0000000092=842641287
+0000000093=854168700
+0000000094=855654544
+0000000095=901901901
+0000000096=904671103
+0000000097=908715674
+0000000098=913573290
+0000000099=929788838
+0000000100=942298750
+])
+
+
+AT_CHECK([diff ${TEMPLATE}/isam/infile.ls relfile.dat] , [0], [])
+
+AT_CLEANUP
+
+AT_SETUP([RELVAR MF I])
+
+AT_DATA([test.conf], [
+include "mf.conf"
+])
+
+AT_CHECK([${COMPILE} -w ${TEMPLATE}/isam/RELFIX.cob -conf=test.conf -constant="relvar=1"])
+AT_CHECK([./RELFIX], [0],
+[OK
+])
+AT_CHECK([od -a --skip-bytes=128 relfix_data], [0], 
+[0000200   @   )   0   0   0   1   R   E   C  sp   W   R   I   T   T   E
+0000220   N  sp  sp  sp  sp   2   -   U   P   D  sp   Y   E   T  sp   0
+0000240   0   0   0   9 nul soh nul nul nul nul  us  cr nul   @   )   0
+0000260   0   0   2   R   E   C  sp   W   R   I   T   T   E   N  sp  sp
+0000300  sp  sp   1   -   R   E   C  sp   R   E   W  sp   0   0   0   0
+0000320   8 nul stx nul nul nul nul   /  cr  nl   @   )   0   0   0   3
+0000340   R   E   C  sp   W   R   I   T   T   E   N  sp  sp  sp  sp   1
+0000360   -   R   E   C  sp   R   E   W  sp   0   0   0   0   7 nul etx
+0000400 nul nul nul nul   ?  cr  nl   @   )   0   0   0   4   R   E   C
+0000420  sp   W   R   I   T   T   E   N  sp  sp  sp  sp   1   -   R   E
+0000440   C  sp   R   E   W  sp   0   0   0   0   6 nul eot nul nul nul
+0000460 nul   O  cr  nl   @   )   0   0   0   5   R   E   C  sp   W   R
+0000500   I   T   T   E   N  sp  sp  sp  sp   1   -   R   E   C  sp   R
+0000520   E   W  sp   0   0   0   0   5 nul enq nul nul nul nul   _  cr
+0000540  nl   @   )   0   0   0   6   R   E   C  sp   W   R   I   T   T
+0000560   E   N  sp  sp  sp  sp   1   -   R   E   C  sp   R   E   W  sp
+0000600   0   0   0   0   4 nul ack nul nul nul nul   o  cr  nl   @   )
+0000620   0   0   0   7   R   E   C  sp   W   R   I   T   T   E   N  sp
+0000640  sp  sp  sp   1   -   R   E   C  sp   R   E   W  sp   0   0   0
+0000660   0   3 nul bel nul nul nul nul del  cr  nl   @   )   0   0   0
+0000700   8   R   E   C  sp   W   R   I   T   T   E   N  sp  sp  sp  sp
+0000720   1   -   R   E   C  sp   R   E   W  sp   0   0   0   0   2 nul
+0000740  bs nul nul nul nul  si  cr  nl   @   )   0   0   0   9   R   E
+0000760   C  sp   W   R   I   T   T   E   N  sp  sp  sp  sp   1   -   R
+0001000   E   C  sp   R   E   W  sp   0   0   0   0   1 nul  ht nul nul
+0001020 nul nul  us  cr  nl   @   )   0   0   1   0   R   E   C  sp   W
+0001040   R   I   T   T   E   N  sp  sp  sp  sp   2   -   U   P   D  sp
+0001060   Y   E   T  sp   0   0   0   0   0 nul  nl nul nul nul soh  si
+0001100  cr nul
+0001102
+])
+AT_CLEANUP
+
+AT_SETUP([RELVAR MF II])
+
+AT_DATA([test.conf], [
+include: mf.conf
+line-seq-dos:yes
+])
+
+AT_CHECK([${COMPILE} -w ${TEMPLATE}/isam/trel.cob -conf=test.conf -constant="relvar=1"])
+AT_CHECK([./trel ${TEMPLATE}/isam/infile.ls], [0],
+[0000000001=100162091
+0000000002=101000001
+0000000003=101000002
+0000000004=101000003
+0000000005=101000004
+0000000006=101000005
+0000000007=101000006
+0000000008=101000007
+0000000009=103283343
+0000000010=104321284
+0000000011=106231560
+0000000012=106578528
+0000000013=111537082
+0000000014=113851980
+0000000015=123346087
+0000000016=133248901
+0000000017=133568113
+0000000018=171562778
+0000000019=201111111
+0000000020=201111113
+0000000021=201111114
+0000000022=201111115
+0000000023=201111116
+0000000024=201111117
+0000000025=201111118
+0000000026=201111119
+0000000027=201201201
+0000000028=201234567
+0000000029=246887110
+0000000030=261198132
+0000000031=261888540
+0000000032=262277908
+0000000033=262846701
+0000000034=263253634
+0000000035=263944149
+0000000036=264083110
+0000000037=264237761
+0000000038=265257761
+0000000039=265456471
+0000000040=266807535
+0000000041=266817345
+0000000042=267590138
+0000000043=267656597
+0000000044=278915948
+0000000045=286286435
+0000000046=297257456
+0000000047=301301301
+0000000048=329343896
+0000000049=352498029
+0000000050=354446453
+0000000051=365762122
+0000000052=368523398
+0000000053=375680899
+0000000054=376152173
+0000000055=376968005
+0000000056=381985654
+0000000057=384652229
+0000000058=387454500
+0000000059=401401401
+0000000060=402657412
+0000000061=413854980
+0000000062=468252871
+0000000063=468807699
+0000000064=475506558
+0000000065=485646231
+0000000066=501501501
+0000000067=501539713
+0000000068=503234567
+0000000069=507298701
+0000000070=510357803
+0000000071=549642706
+0000000072=566378105
+0000000073=568086211
+0000000074=576203511
+0000000075=601601601
+0000000076=620836164
+0000000077=638910654
+0000000078=644123211
+0000000079=652678565
+0000000080=665286528
+0000000081=687580870
+0000000082=701701701
+0000000083=708654532
+0000000084=713815878
+0000000085=729835465
+0000000086=750442987
+0000000087=759052770
+0000000088=769180876
+0000000089=790870501
+0000000090=801801801
+0000000091=829255769
+0000000092=842641287
+0000000093=854168700
+0000000094=855654544
+0000000095=901901901
+0000000096=904671103
+0000000097=908715674
+0000000098=913573290
+0000000099=929788838
+0000000100=942298750
+])
+
+AT_CHECK([${COMPILE} -w ${TEMPLATE}/isam/trelseq.cob -conf=test.conf -constant="relvar=1"])
+AT_CHECK([./trelseq], [0],
+[0000000001=100162091
+0000000002=101000001
+0000000003=101000002
+0000000004=101000003
+0000000005=101000004
+0000000006=101000005
+0000000007=101000006
+0000000008=101000007
+0000000009=103283343
+0000000010=104321284
+0000000011=106231560
+0000000012=106578528
+0000000013=111537082
+0000000014=113851980
+0000000015=123346087
+0000000016=133248901
+0000000017=133568113
+0000000018=171562778
+0000000019=201111111
+0000000020=201111113
+0000000021=201111114
+0000000022=201111115
+0000000023=201111116
+0000000024=201111117
+0000000025=201111118
+0000000026=201111119
+0000000027=201201201
+0000000028=201234567
+0000000029=246887110
+0000000030=261198132
+0000000031=261888540
+0000000032=262277908
+0000000033=262846701
+0000000034=263253634
+0000000035=263944149
+0000000036=264083110
+0000000037=264237761
+0000000038=265257761
+0000000039=265456471
+0000000040=266807535
+0000000041=266817345
+0000000042=267590138
+0000000043=267656597
+0000000044=278915948
+0000000045=286286435
+0000000046=297257456
+0000000047=301301301
+0000000048=329343896
+0000000049=352498029
+0000000050=354446453
+0000000051=365762122
+0000000052=368523398
+0000000053=375680899
+0000000054=376152173
+0000000055=376968005
+0000000056=381985654
+0000000057=384652229
+0000000058=387454500
+0000000059=401401401
+0000000060=402657412
+0000000061=413854980
+0000000062=468252871
+0000000063=468807699
+0000000064=475506558
+0000000065=485646231
+0000000066=501501501
+0000000067=501539713
+0000000068=503234567
+0000000069=507298701
+0000000070=510357803
+0000000071=549642706
+0000000072=566378105
+0000000073=568086211
+0000000074=576203511
+0000000075=601601601
+0000000076=620836164
+0000000077=638910654
+0000000078=644123211
+0000000079=652678565
+0000000080=665286528
+0000000081=687580870
+0000000082=701701701
+0000000083=708654532
+0000000084=713815878
+0000000085=729835465
+0000000086=750442987
+0000000087=759052770
+0000000088=769180876
+0000000089=790870501
+0000000090=801801801
+0000000091=829255769
+0000000092=842641287
+0000000093=854168700
+0000000094=855654544
+0000000095=901901901
+0000000096=904671103
+0000000097=908715674
+0000000098=913573290
+0000000099=929788838
+0000000100=942298750
+])
+
+AT_CLEANUP
+
+AT_SETUP([SEQLINE])
+
+AT_CHECK([${COMPILE} -w ${TEMPLATE}/isam/SEQLINE.cob], [0])
+AT_CHECK([./SEQLINE], [0],
+[OK
+])
+
+AT_CLEANUP
+
+AT_SETUP([SEQVAR])
+
+AT_CHECK([${COMPILE} -w ${TEMPLATE}/isam/SEQVAR.cob])
+AT_CHECK([./SEQVAR], [0],
+[OK
+])
+
+AT_CLEANUP
+
+AT_SETUP([VSAMFIX primary])
+
+AT_CHECK([${COMPILE} -w ${TEMPLATE}/isam/VSAMFIX.cob])
+AT_CHECK([./VSAMFIX 1], [0],
+[VSAM FIXED on primary key
+OK
+])
+
+AT_CLEANUP
+
+AT_SETUP([VSAMFIX Alternate])
+
+AT_CHECK([${COMPILE} -w ${TEMPLATE}/isam/VSAMFIX.cob])
+AT_CHECK([./VSAMFIX 2], [0],
+[VSAM FIXED on alternate key
+OK
+])
+
+AT_CLEANUP
+
+AT_SETUP([VSAMVAR primary])
+
+AT_CHECK([${COMPILE} -w ${TEMPLATE}/isam/VSAMVAR.cob])
+AT_CHECK([./VSAMVAR 1], [0],
+[VSAM VARIABLE on primary key
+OK
+])
+
+AT_CLEANUP
+
+AT_SETUP([VSAMVAR Alternate])
+
+AT_CHECK([${COMPILE} -w ${TEMPLATE}/isam/VSAMVAR.cob])
+AT_CHECK([./VSAMVAR 2], [0],
+[VSAM VARIABLE on alternate key
+OK
+])
+
+AT_CLEANUP
+
+AT_SETUP([RELFIX mfextfh])
+
+AT_CHECK([${COMPILE} -w -use-extfh EXTFH -ldisamextfh ${TEMPLATE}/isam/RELFIX.cob])
+AT_CHECK([./RELFIX], [0],
+[OK
+])
+
+AT_CLEANUP
+
+AT_SETUP([SEQLINE mfextfh])
+
+AT_CHECK([${COMPILE} -w -use-extfh EXTFH -ldisamextfh ${TEMPLATE}/isam/SEQLINE.cob])
+AT_CHECK([./SEQLINE], [0],
+[OK
+])
+
+AT_CLEANUP
+
+AT_SETUP([SEQVAR mfextfh])
+
+AT_CHECK([${COMPILE} -w -use-extfh EXTFH -ldisamextfh ${TEMPLATE}/isam/SEQVAR.cob])
+AT_CHECK([./SEQVAR], [0],
+[OK
+])
+
+AT_CLEANUP
+
+AT_SETUP([VSAMFIX primary mfextfh])
+
+AT_CHECK([${COMPILE} -use-extfh EXTFH -ldisamextfh ${TEMPLATE}/isam/VSAMFIX.cob])
+AT_CHECK([./VSAMFIX 1], [0],
+[VSAM FIXED on primary key
+OK
+])
+
+AT_CLEANUP
+
+AT_SETUP([VSAMFIX Alternate mfextfh])
+
+AT_CHECK([${COMPILE} -w -use-extfh EXTFH -ldisamextfh ${TEMPLATE}/isam/VSAMFIX.cob])
+AT_CHECK([./VSAMFIX 2], [0],
+[VSAM FIXED on alternate key
+OK
+])
+
+AT_CLEANUP
+
+AT_SETUP([VSAMVAR primary mfextfh])
+
+AT_CHECK([${COMPILE} -w -use-extfh EXTFH -ldisamextfh ${TEMPLATE}/isam/VSAMVAR.cob])
+AT_CHECK([./VSAMVAR 1], [0],
+[VSAM VARIABLE on primary key
+OK
+])
+
+AT_CLEANUP
+
+AT_SETUP([VSAMVAR Alternate mfextfh])
+
+AT_CHECK([${COMPILE} -w -use-extfh EXTFH -ldisamextfh ${TEMPLATE}/isam/VSAMVAR.cob])
+AT_CHECK([./VSAMVAR 2], [0],
+[VSAM VARIABLE on alternate key
+OK
+])
+
+AT_CLEANUP
+
+AT_SETUP([VSAM Delete])
+
+AT_CHECK([${COMPILE} -w -std=mf ${TEMPLATE}/isam/test1.cbl])
+AT_CHECK([cp ${TEMPLATE}/isam/stockcli.lseq .])
+AT_CHECK([citsort take ${TEMPLATE}/isam/stockcli.cms > coco 2>cici])
+AT_CHECK([./test1], [0],
+[00115
+00115
+00000
+00115
+00115
+00115
+00000
+00115
+00115
+00115
+00000
+])
+
+AT_CLEANUP
+
+AT_SETUP([VSAM Delete WITH ROLLBACK])
+
+AT_CHECK([${COMPILE} -w -std=mf -fno-realpath ${TEMPLATE}/isam/test2.cbl])
+AT_CHECK([cp ${TEMPLATE}/isam/stockcli.lseq .])
+AT_CHECK([citsort take ${TEMPLATE}/isam/stockcli.cms > coco 2>cici])
+AT_CHECK([./test2], [0],
+[00115
+00115
+00115
+00115
+00000
+00115
+00115
+00115
+00115
+00115
+00115
+00115
+00000
+])
+AT_CHECK([./test2], [0],
+[00115
+00115
+00115
+00115
+00000
+00115
+00115
+00115
+00115
+00115
+00115
+00115
+00000
+])
+
+AT_CLEANUP
+
+AT_SETUP([VSAM Commit/Rollback])
+
+AT_CHECK([${COMPILE} -w -std=mf ${TEMPLATE}/eevbisam-em.cbl])
+AT_CHECK([./eevbisam-em], [0],
+[READ KEY:001238
+READ KEY:001238
+READ KEY:001238
+READ KEY:001264
+])
+
+AT_CLEANUP
+
+AT_SETUP([VSAM WRITE & READ NEXT ])
+
+AT_CHECK([${COMPILE} -w -std=mf -fno-realpath ${TEMPLATE}/isam/lose-current.cbl])
+AT_CHECK([./lose-current], [0],
+[READ  :01:00:00001                                                                                             
+WRITE :01:48:00001                                                                                             
+READ  :02:00:00002                                                                                             
+WRITE :02:48:00002
+READ  :03:00:00003
+WRITE :03:48:00003
+READ  :04:00:00004
+WRITE :04:48:00004
+READ  :05:00:00005
+WRITE :05:48:00005
+READ  :06:00:00006
+WRITE :06:48:00006
+READ  :07:00:00007
+WRITE :07:48:00007
+READ  :08:00:00008
+WRITE :08:48:00008
+READ  :09:00:00009
+WRITE :09:48:00009
+READ  :10:00:00010
+WRITE :10:48:00010
+READ  :01:00:00001
+WRITE :01:22:00001
+READ  :02:00:00002
+WRITE :02:22:00002
+READ  :03:00:00003
+WRITE :03:22:00003
+READ  :04:00:00004
+WRITE :04:22:00004
+READ  :05:00:00005
+WRITE :05:22:00005
+READ  :06:00:00006
+WRITE :06:22:00006
+READ  :07:00:00007
+WRITE :07:22:00007
+READ  :08:00:00008
+WRITE :08:22:00008
+READ  :09:00:00009
+WRITE :09:22:00009
+READ  :10:00:00010
+WRITE :10:22:00010
+READ  :01:00:00001
+WRITE :01:00:00051
+READ  :02:00:00002
+WRITE :02:00:00052
+READ  :03:00:00003
+WRITE :03:00:00053
+READ  :04:00:00004
+WRITE :04:00:00054
+READ  :05:00:00005
+WRITE :05:00:00055
+READ  :06:00:00006
+WRITE :06:00:00056
+READ  :07:00:00007
+WRITE :07:00:00057
+READ  :08:00:00008
+WRITE :08:00:00058
+READ  :09:00:00009
+WRITE :09:00:00059
+READ  :10:00:00010
+WRITE :10:00:00060
+])
+AT_CLEANUP
+
+AT_SETUP([EXTFH Commit ])
+
+AT_DATA([prog.cob], [
+       identification division.
+       program-id. prog.
+       environment division.
+       configuration section.
+       file-control.
+    60       SELECT SYSSYS ASSIGN DYNAMIC EFN-SYSSYS
+    70              ORGANIZATION LINE SEQUENTIAL
+   100              FILE STATUS FST-SYSSYS
+                    .
+       data division.
+       file section.
+   160 FD  SYSSYS.
+   170 01  ENRG-SYSSYS PIC X(20).
+       working-storage section.
+       78 PATH-SIZE VALUE 250.
+       77 fst-syssys   pic xx.
+       01  efn-syssys  pic x(PATH-SIZE) .
+      ******************************************
+       procedure division.
+       prog section.
+       debut.
+           MOVE "MAA" TO EFN-SYSSYS.
+           OPEN OUTPUT SYSSYS.
+           MOVE ALL "A" TO ENRG-SYSSYS.
+           WRITE ENRG-SYSSYS.
+           MOVE ALL "B" TO ENRG-SYSSYS.
+           COMMIT.
+           WRITE ENRG-SYSSYS.
+           COMMIT.
+           CLOSE SYSSYS.
+           GOBACK.
+])
+
+AT_DATA([DUMMY_EXTFH.cob], [
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. DUMMY_EXTFH.
+      ***********************************************
+      * BATCH EXTERNAL FILE HANDLER
+      ***********************************************
+       ENVIRONMENT DIVISION.
+       CONFIGURATION SECTION.
+       INPUT-OUTPUT SECTION.
+       data division.
+       file section.
+       WORKING-STORAGE SECTION.
+       01 DFS.
+           05 DFS-B1 PIC X.
+           05 DFS-B2 PIC X COMP-X.
+       01 DFS-VAL PIC 9999.
+       01 XFH-FONCODE.
+          02 XFH-FC-FB PIC X.
+             88 XFH-FC-NORMAL  VALUE X"FA".
+             88 XFH-FC-SPECIAL VALUE X"00".
+          02 XFH-FC-ACT PIC X.
+             88 XFH-READ VALUE X"8D" X"D8" X"D9" X"F5" X"8C"
+                               X"DE" X"DF" X"F9" X"8E" X"DA"
+                               X"DB" X"F6" X"8F" X"D6" X"D7"
+                               X"C9" X"F1".
+             88 XFH-WRITE VALUE X"E1" X"E2" X"E3" X"E4" X"E5"
+                                X"E6" X"F3".
+             88 XFH-RWRIT VALUE X"F4".
+             88 XFH-START VALUE X"E8" X"E9" X"EA" X"EB" X"FE" X"FF".
+             88 XFH-DEL   VALUE X"F7".
+             88 XFH-DELFI VALUE X"F8".
+             88 XFH-OPEN  VALUE X"00" X"01" X"02" X"03" X"04" X"05"
+                                X"08".
+             88 XFH-CLOSE VALUE X"80" X"81" X"82" X"84" X"85" X"86".
+             88 XFH-SPEC  VALUE X"06" X"07" X"08" X"09" X"0F".
+             88 XFH-UNLCK VALUE X"0E".
+             88 XFH-CMIT  VALUE X"DC".
+             88 XFH-RLBK  VALUE X"DD".
+       02 XFH-FONC-BIN REDEFINES XFH-FC-ACT PIC 99 COMP-X.
+       LINKAGE SECTION.
+       01  XFH-FONC.
+           02 FILLER PIC XX.
+       01  XFH-DESC.
+       copy "xfhfcd3.cpy".
+       PROCEDURE DIVISION USING XFH-FONC XFH-DESC.
+       DBPG SECTION.
+       PG000.
+           MOVE XFH-FONC TO XFH-FONCODE.
+           IF XFH-CMIT 
+                     DISPLAY "COMMIT GO BACK"
+                      GOBACK.
+           CALL "EXTFH" USING XFH-FONC XFH-DESC.
+           EXIT PROGRAM.
+])
+
+AT_CHECK([${COMPILE_MODULE} -w DUMMY_EXTFH.cob -lvbisamextfh])
+AT_CHECK([${COMPILE} -w -use-extfh DUMMY_EXTFH  prog.cob ./DUMMY_EXTFH.so -lvbisamextfh])
+
+AT_CHECK([./prog], [0],
+[COMMIT GO BACK
+COMMIT GO BACK
+])
+AT_CHECK([cat MAA], 0, 
+[AAAAAAAAAAAAAAAAAAAA
+BBBBBBBBBBBBBBBBBBBB
+])
+AT_CLEANUP
+
+AT_SETUP([sort var size ])
+
+AT_DATA([prog.cob], [
+ IDENTIFICATION DIVISION.
+ PROGRAM-ID. prog.
+ ENVIRONMENT DIVISION.
+ INPUT-OUTPUT SECTION.
+ FILE-CONTROL.
+ SELECT SEQFILE assign to "seqvar"
+ ORGANIZATION IS  SEQUENTIAL
+ ACCESS IS SEQUENTIAL
+ FILE STATUS is infile-stat.
+ SELECT sortout assign to "testout1.txt"
+ organization is  SEQUENTIAL
+ ACCESS IS SEQUENTIAL
+ FILE STATUS IS outfile-stat.
+ SELECT member-sort ASSIGN TO "sort-work".
+ DATA DIVISION.
+ FILE SECTION.
+ FD SEQFILE
+        RECORD VARYING 1 TO 90 DEPENDING ON LG.
+       01 ENR1 .
+           10 CLE1 PIC S9(10).
+           10 DATA-ENR1  PIC X(80).
+       
+ FD SORTOUT
+        RECORD VARYING 1 TO 90 DEPENDING ON LG.
+       01 ENR.
+           10 CLE PIC S9(10).
+           10 DATA-ENR  PIC X(80).
+* SD member-sort RECORD VARYING IN SIZE  1 TO 90 DEPENDING ON LG.
+ SD member-sort RECORD VARYING IN SIZE  1 TO 90 DEPENDING ON LG.
+ 01 SORT-DATA .
+           10 CLE1-SORT PIC S9(10).
+           10 DATA-SORT  PIC X(80).
+ WORKING-STORAGE SECTION.
+ 77 infile-stat pic xx.
+ 77 outfile-stat pic xx.
+ 01 lg pic 99.
+ PROCEDURE DIVISION.
+   OPEN OUTPUT SEQFILE.
+   MOVE 1 TO CLE1
+   MOVE "1234567890" TO DATA-ENR1
+   MOVE 20 TO LG
+   WRITE ENR1.
+   MOVE -1 TO CLE1
+   MOVE "12345" TO DATA-ENR1
+   MOVE 15 TO LG
+   WRITE ENR1.
+   CLOSE SEQFILE.
+ PRODUCT-LIST-SORT.
+ SORT member-sort
+ ON 
+    ASCENDING KEY  cle1-sort
+ USING SEQFILE
+ GIVING sortout.
+])
+
+AT_CHECK([${COMPILE} -w -free prog.cob])
+AT_CHECK([./prog], [0])
+AT_CHECK([od -a -j 128 testout1.txt], [0],
+[0000200   @  si   0   0   0   0   0   0   0   0   0   q   1   2   3   4
+0000220   5 nul nul nul   @ dc4   0   0   0   0   0   0   0   0   0   1
+0000240   1   2   3   4   5   6   7   8   9   0 nul nul
+0000254
+])
+AT_CLEANUP
+
+AT_SETUP([sort var size with procedure ])
+
+AT_DATA([prog.cob], [
+IDENTIFICATION DIVISION.
+ PROGRAM-ID. prog.
+ ENVIRONMENT DIVISION.
+ INPUT-OUTPUT SECTION.
+ FILE-CONTROL.
+ SELECT SEQFILE assign to "seqvar"
+ ORGANIZATION IS  SEQUENTIAL
+ ACCESS IS SEQUENTIAL
+ FILE STATUS is infile-stat.
+ SELECT sortout assign to "testout2.txt"
+ organization is  SEQUENTIAL
+ ACCESS IS SEQUENTIAL
+ FILE STATUS IS outfile-stat.
+ SELECT member-sort ASSIGN TO "sort-work".
+ DATA DIVISION.
+ FILE SECTION.
+ FD SEQFILE
+        RECORD VARYING 1 TO 90 DEPENDING ON LG.
+       01 ENR1 .
+           10 CLE1 PIC S9(10).
+           10 DATA-ENR1  PIC X(80).
+       
+ FD SORTOUT
+        RECORD VARYING 1 TO 90 DEPENDING ON LG.
+       01 ENR.
+           10 CLE PIC S9(10).
+           10 DATA-ENR  PIC X(80).
+ SD member-sort RECORD VARYING IN SIZE  1 TO 90 DEPENDING ON LG.
+ 01 SORT-DATA .
+           10 CLE1-SORT PIC S9(10).
+           10 DATA-SORT  PIC X(80).
+ WORKING-STORAGE SECTION.
+ 77 infile-stat pic xx.
+ 77 outfile-stat pic xx.
+ 01 lg pic 99.
+ 01 EOF-SORT PIC 9 VALUE 0.
+ PROCEDURE DIVISION.
+   OPEN OUTPUT SEQFILE.
+   MOVE 1 TO CLE1
+   MOVE "1234567890" TO DATA-ENR1
+   MOVE 20 TO LG
+   WRITE ENR1.
+   MOVE -1 TO CLE1
+   MOVE "12345" TO DATA-ENR1
+   MOVE 15 TO LG
+   WRITE ENR1.
+   CLOSE SEQFILE.
+ PRODUCT-LIST-SORT.
+   SORT member-sort
+   ON 
+    ASCENDING KEY  cle1-sort
+    INPUT PROCEDURE INPUT-PROC
+    OUTPUT PROCEDURE OUTPUT-PROC.
+    GOBACK.
+
+ INPUT-PROC SECTION. 
+ INPUT-PROCESS. 
+         OPEN INPUT SEQFILE. 
+         READ SEQFILE NEXT RECORD. 
+         PERFORM UNTIL infile-stat = 10 
+           DISPLAY "RELEASE LG=" LG "DATA=" ENR1 "-"
+           RELEASE SORT-DATA FROM ENR1
+           READ SEQFILE NEXT RECORD 
+         END-PERFORM. 
+         CLOSE SEQFILE. 
+         EXIT SECTION.
+ OUTPUT-PROC SECTION.
+ OUTPUT-PROCESS.
+     OPEN OUTPUT SORTOUT.
+     PERFORM UNTIL EOF-SORT > 0
+            DISPLAY "EOF-SORT=" EOF-SORT
+            RETURN MEMBER-SORT AT END 
+                   MOVE 1 TO EOF-SORT
+                   DISPLAY "FIN SORT"
+                NOT AT END 
+                   DISPLAY "RETURN  LG=" LG "DATA=" SORT-DATA "-"
+                   WRITE ENR FROM SORT-DATA
+            END-RETURN
+      END-PERFORM.
+      CLOSE SORTOUT.
+ EXIT SECTION.
+])
+
+AT_CHECK([${COMPILE} -w -free prog.cob])
+AT_CHECK([./prog], [0],
+[RELEASE LG=20DATA=00000000011234567890                                                                      -
+RELEASE LG=15DATA=000000000q1234567890                                                                      -
+EOF-SORT=0
+RETURN  LG=15DATA=000000000q12345                                                                           -
+EOF-SORT=0
+RETURN  LG=20DATA=00000000011234567890                                                                      -
+EOF-SORT=0
+FIN SORT
+])
+AT_CHECK([od -a -j 128  testout2.txt], [0],
+[0000200   @  si   0   0   0   0   0   0   0   0   0   q   1   2   3   4
+0000220   5 nul nul nul   @ dc4   0   0   0   0   0   0   0   0   0   1
+0000240   1   2   3   4   5   6   7   8   9   0 nul nul
+0000254
+])
+AT_CLEANUP
+
+AT_SETUP([RELATIVE one Record])
+AT_KEYWORDS([FileIo])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. prog.
+       ENVIRONMENT DIVISION.
+       CONFIGURATION SECTION.
+      
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT FLATFILE ASSIGN EXTERNAL "RELFIX"
+           ORGANIZATION RELATIVE
+           ACCESS IS SEQUENTIAL
+           FILE STATUS IS CUST-STAT.
+
+       DATA  DIVISION.
+       FILE SECTION.
+       FD  FLATFILE
+           BLOCK CONTAINS 5 RECORDS.
+      
+       01  TSPFL-RECORD.
+           10  CM-CUST-NUM                     PICTURE X(8). 
+           10  CM-COMPANY                      PICTURE X(25). 
+           10  CM-DISK                         PICTURE X(8). 
+           10  CM-NO-TERMINALS                 PICTURE 9(4) COMP-4. 
+           10  CM-PK-DATE                      PICTURE S9(14) COMP-3.
+           10  CM-TRAILER                      PICTURE X(252). 
+      
+       WORKING-STORAGE SECTION.
+      
+       77  MAX-SUB           VALUE  6          PICTURE 9(4) COMP SYNC.
+       77  CUST-STAT                           PICTURE X(2).
+       77  REC-NUM           VALUE  1          PICTURE 9(8) COMP SYNC.
+      
+       01  TEST-DATA.
+      
+         02  DATA-CUST-NUM-TBL.
+      
+           05  FILLER PIC X(8) VALUE "ALP00000".
+           05  FILLER PIC X(8) VALUE "BET00000".
+           05  FILLER PIC X(8) VALUE "DEL00000".
+           05  FILLER PIC X(8) VALUE "EPS00000".
+           05  FILLER PIC X(8) VALUE "FOR00000".
+           05  FILLER PIC X(8) VALUE "GAM00000".
+      
+         02  DATA-CUST-NUM REDEFINES DATA-CUST-NUM-TBL
+                                       PIC X(8) OCCURS 6.
+         02  DATA-COMPANY-TBL.
+      
+           05  FILLER PIC X(25) VALUE "ALPHA ELECTRICAL CO. LTD.".
+           05  FILLER PIC X(25) VALUE "BETA SHOE MFG. INC.      ".
+           05  FILLER PIC X(25) VALUE "DELTA LUGGAGE REPAIRS    ".
+           05  FILLER PIC X(25) VALUE "EPSILON EQUIPMENT SUPPLY ".
+           05  FILLER PIC X(25) VALUE "FORTUNE COOKIE COMPANY   ".
+           05  FILLER PIC X(25) VALUE "GAMMA X-RAY TECHNOLOGY   ".
+         02  DATA-COMPANY  REDEFINES DATA-COMPANY-TBL
+                                       PIC X(25) OCCURS 6.
+         02  DATA-ADDRESS-2-TBL.
+      
+           05  FILLER PIC X(10) VALUE "ATLANTA   ".
+           05  FILLER PIC X(10) VALUE "CALGARY   ".
+           05  FILLER PIC X(10) VALUE "NEW YORK  ".
+           05  FILLER PIC X(10) VALUE "TORONTO   ".
+           05  FILLER PIC X(10) VALUE "WASHINGTON".
+           05  FILLER PIC X(10) VALUE "WHITEPLAIN".
+         02  DATA-ADDRESS   REDEFINES DATA-ADDRESS-2-TBL
+                                       PIC X(10) OCCURS 6.
+
+         02  DATA-NO-TERMINALS-TBL.
+      
+           05  FILLER PIC 9(3) COMP-3 VALUE 10.
+           05  FILLER PIC 9(3) COMP-3 VALUE 13.
+           05  FILLER PIC 9(3) COMP-3 VALUE 75.
+           05  FILLER PIC 9(3) COMP-3 VALUE 10.
+           05  FILLER PIC 9(3) COMP-3 VALUE 90.
+           05  FILLER PIC 9(3) COMP-3 VALUE 254.
+      
+         02  DATA-NO-TERMINALS REDEFINES DATA-NO-TERMINALS-TBL
+                                       PIC 9(3) COMP-3 OCCURS 6.
+       01  WORK-AREA.
+           05  SUB                             PICTURE 9(4) COMP SYNC.
+               88  ODD-RECORD                  VALUE 1 3 5.
+      
+      
+       PROCEDURE DIVISION.
+
+           PERFORM LOADFILE.
+           OPEN INPUT FLATFILE.
+           DISPLAY "Open Sts:" CUST-STAT 
+           PERFORM 4 TIMES
+             READ FLATFILE
+             DISPLAY "Read " CM-CUST-NUM " Sts:" CUST-STAT
+           END-PERFORM.
+           CLOSE FLATFILE.
+
+           DISPLAY "*** Test Update of file ***".
+           OPEN I-O FLATFILE.
+           READ FLATFILE
+           DISPLAY "Read " CM-CUST-NUM " Sts:" CUST-STAT.
+           ADD 1 TO CM-NO-TERMINALS
+           REWRITE TSPFL-RECORD
+           DISPLAY "REWRITE " CM-CUST-NUM " Sts " CUST-STAT 
+                   " Trms:" CM-NO-TERMINALS.
+           CLOSE FLATFILE.
+
+           OPEN I-O FLATFILE.
+           READ FLATFILE
+           DISPLAY "Read " CM-CUST-NUM " Sts:" CUST-STAT.
+           ADD 1 TO CM-NO-TERMINALS
+           REWRITE TSPFL-RECORD
+           DISPLAY "REWRITE " CM-CUST-NUM " Sts " CUST-STAT 
+                   " Trms:" CM-NO-TERMINALS.
+           READ FLATFILE WITH LOCK
+           DISPLAY "Read " CM-CUST-NUM
+           DELETE FLATFILE 
+           DISPLAY "DELETE " CM-CUST-NUM " Sts " CUST-STAT.
+           CLOSE FLATFILE.
+
+           DISPLAY "*** List file afer Update/Delete ***".
+           OPEN INPUT FLATFILE.
+           PERFORM 4 TIMES
+             READ FLATFILE
+             DISPLAY "Read " CM-CUST-NUM " Sts " CUST-STAT 
+                     " Trms:" CM-NO-TERMINALS
+           END-PERFORM.
+           CLOSE FLATFILE.
+           STOP RUN RETURNING 0.
+      
+       LOADFILE.
+           DISPLAY "Loading sample program data file."
+                            UPON CONSOLE.
+      
+           OPEN OUTPUT FLATFILE.
+      
+           PERFORM 1000-LOAD-RECORD
+                        VARYING SUB FROM 1 BY 1 
+                          UNTIL SUB > MAX-SUB.
+      
+           DISPLAY "Sample program data file load complete."
+                            UPON CONSOLE.
+           CLOSE FLATFILE.
+      
+      /
+      *---------------------------------------------------------------*
+      *                                                               *
+      *         LOAD A RECORD FROM DATA TABLES                        *
+      *                                                               *
+      *---------------------------------------------------------------*
+      
+       1000-LOAD-RECORD.
+      
+           MOVE SPACES                       TO TSPFL-RECORD.
+           MOVE DATA-CUST-NUM      (SUB)     TO CM-CUST-NUM.
+           MOVE DATA-COMPANY       (SUB)     TO CM-COMPANY.
+           MOVE DATA-NO-TERMINALS  (SUB)     TO CM-NO-TERMINALS.
+           MOVE 20070319                     TO CM-PK-DATE.
+           IF SUB = 1 OR 4 OR 6
+               MOVE -20070319                 TO CM-PK-DATE.
+      
+           IF  ODD-RECORD
+               MOVE "8417"                   TO CM-DISK 
+           ELSE
+               MOVE "8470"                   TO CM-DISK.
+           WRITE TSPFL-RECORD.
+])
+
+AT_CHECK([cobc -G -x -std=mf -w prog.cob], [0], [], [])
+
+AT_CHECK([./prog], [0], [Loading sample program data file.
+Sample program data file load complete.
+Open Sts:00
+Read ALP00000 Sts:00
+Read BET00000 Sts:00
+Read DEL00000 Sts:00
+Read EPS00000 Sts:00
+*** Test Update of file ***
+Read ALP00000 Sts:00
+REWRITE ALP00000 Sts 00 Trms:00011
+Read ALP00000 Sts:00
+REWRITE ALP00000 Sts 00 Trms:00012
+Read BET00000
+DELETE BET00000 Sts 00
+*** List file afer Update/Delete ***
+Read ALP00000 Sts 00 Trms:00012
+Read DEL00000 Sts 00 Trms:00075
+Read EPS00000 Sts 00 Trms:00010
+Read FOR00000 Sts 00 Trms:00090
+], [])
+
+AT_CLEANUP
+
+AT_SETUP([LINESEQ MF no-trunc])
+
+AT_DATA([lseq.txt], [A1 1234567890E
+A2 1234567890123456789012345678901234567890123456789012345678901234567890123456EA3cw123456E
+A4 12345678901234567890E
+A5 1234E
+])
+
+AT_DATA([conf.cfg], [
+include "default.conf"
+line-seq-notrunc:yes
+])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION             DIVISION.
+       PROGRAM-ID.                prog.
+       ENVIRONMENT                DIVISION.
+       CONFIGURATION              SECTION.
+       SPECIAL-NAMES.
+           DECIMAL-POINT          IS COMMA.
+       INPUT-OUTPUT               SECTION.
+       FILE-CONTROL.
+           SELECT SQINP           ASSIGN         KC-SQINP
+                                  ORGANIZATION   LINE SEQUENTIAL
+                                  ACCESS         SEQUENTIAL.
+      /
+       DATA                       DIVISION.
+       FILE                       SECTION.
+       FD  SQINP.
+       01  SQINP-000              PIC X(80).
+      /
+       WORKING-STORAGE            SECTION.
+      /
+       01 I-AKT                   PIC 9(05).
+       PROCEDURE DIVISION.
+       STEUER                     SECTION.
+       H-00.
+           move "lseq.txt"         TO KC-SQINP.
+           MOVE 0                 TO I-AKT.
+           OPEN INPUT             SQINP.
+       H-10.
+           READ                   SQINP
+           AT END
+             GO                   H-90.
+
+           ADD 1                  TO I-AKT.
+           display i-akt "==" SQINP-000 "==".
+           GO                     H-10.
+       H-90.
+           CLOSE                  SQINP.
+       H-99.
+           goback.
+])
+
+AT_CHECK([cobc -G -x -conf=conf.cfg -w prog.cob], [0], [], [])
+AT_CHECK([./prog], [0], 
+[00001==A1 1234567890E                                                                  ==
+00002==A2 1234567890123456789012345678901234567890123456789012345678901234567890123456E==
+00003==A3cw123456E                                                                     ==
+00004==A4 12345678901234567890E                                                        ==
+00005==A5 1234E                                                                        ==
+], [])
+AT_CHECK([cobc -G -x -w prog.cob], [0], [], [])
+AT_CHECK([./prog], [0], 
+[00001==A1 1234567890E                                                                  ==
+00002==A2 1234567890123456789012345678901234567890123456789012345678901234567890123456E==
+00003==A4 12345678901234567890E                                                        ==
+00004==A5 1234E                                                                        ==
+], [])
+AT_CLEANUP
+
+AT_SETUP([CITSORT I])
+
+
+AT_CHECK([cp ${TEMPLATE}/isam/XCAO.FILEORA.QSAM.FILE .], [0], [], [])
+AT_CHECK([citsort take ${TEMPLATE}/isam/citsort_step1  2>coco | tail -n 6], [0], 
+[INPUT file : XCAO.FILEORA.QSAM.FILE
+       Total rec : 4
+       Used rec  : 4
+OUTPUT file : XCAO.FILEORA.QSAM.FILE.SUM
+       Total rec : 4
+       Used rec  : 3
+], [])
+AT_CHECK([citsort take ${TEMPLATE}/isam/citsort_step2  2>coco | tail -n 6 2>coco], [0], 
+[OUTPUT file : XCAO.FILEORA.QSAM.FILE.SUM.CHECK
+       Total rec : 3
+       Used rec  : 3
+INPUT file : XCAO.FILEORA.QSAM.FILE.SUM
+       Total rec : 3
+       Used rec  : 3
+], [])
+AT_CHECK([diff XCAO.FILEORA.QSAM.FILE.SUM.CHECK ${TEMPLATE}/isam/XCAO.FILEORA.QSAM.FILE.SUM.CHECK], [0], [], [])
+AT_CLEANUP
+
+AT_SETUP([FP computation (Reale Mutual)])
+
+AT_CHECK([ make -f ${TEMPLATE}/testcase/Makefile SRCPATH=${TEMPLATE}/testcase/], [0],ignore,)
+AT_CHECK([cp ${TEMPLATE}/testcase/VC1RZ20.in .], [0])
+AT_CHECK([./prog 999], [0],
+[0000000166 Record read
+])
+AT_CHECK([diff ${TEMPLATE}/testcase/VC1RZ20.out.O0 VC1RZ20.out], [0])
+
+AT_CLEANUP
+
+AT_SETUP([INDEXED FILE Read variable size])
+AT_DATA([data.txt], [00049          DOSSIER   01RES       005  CD215_TEST10        2010073000001000110000000Ecriture enreg longueur 187 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxL
+00049          DOSSIER   01TA        005  CD215_TEST10        0000000000001000010000000Ecriture enreg longueur 137 xxxxxxxxxxxxxxxxxxxxxL
+00049          DOSSIER   01TA        005  CD215_TEST10        0000000000001000050000001Ecriture enreg longueur 147 yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyl
+00049          DOSSIER   01TA        005  CD215_TEST10        0000000000001000050000002Ecriture enreg longueur 147 yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyl
+00049          DOSSIER   01TA        005  CD215_TEST10        0000000000001000050000003Ecriture enreg longueur 147 yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyl
+00049          DOSSIER   01TA        005  CD215_TEST10        0000000000001000050000004Ecriture enreg longueur 147 yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyl
+00049          DOSSIER   01TA        005  CD215_TEST10        0000000000001000050000005Ecriture enreg longueur 147 yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyl
+])
+AT_DATA([FICHIER.VIDE], [])
+AT_CHECK([${COMPILE} -w ${TEMPLATE}/read_indexed_file_variable_size.cbl])
+AT_CHECK([citsort COPY USE "FICHIER.VIDE" RECORD V,1,32767 ORG LS  GIVE "PSVCRGE.DAT" RECORD V,87,4037 ORG IX KEY=01,87,P  2>coco | tail -n 6 ], [], 
+[OUTPUT file : PSVCRGE.DAT
+       Total rec : 0
+       Used rec  : 0
+INPUT file : FICHIER.VIDE
+       Total rec : 0
+       Used rec  : 0
+])
+AT_CHECK([./read_indexed_file_variable_size], [0],
+[FRST
+psvf07 - start     00
+psvf07 - read next 00
+psvf07 - 00049          DOSSIER   01RES       005  CD215_TEST10        2010073000001000110000000 : lg : 00187
+psvf07 - 00049          DOSSIER   01RES       005  CD215_TEST10        2010073000001000110000000Ecriture enreg longueur 187 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxL
+SUIV
+psvf07 - read next 00
+psvf07 - 00049          DOSSIER   01TA        005  CD215_TEST10        0000000000001000010000000 : lg : 00137
+psvf07 - 00049          DOSSIER   01TA        005  CD215_TEST10        0000000000001000010000000Ecriture enreg longueur 137 xxxxxxxxxxxxxxxxxxxxxL
+psvf07 - read next 00
+psvf07 - 00049          DOSSIER   01TA        005  CD215_TEST10        0000000000001000050000001 : lg : 00147
+psvf07 - 00049          DOSSIER   01TA        005  CD215_TEST10        0000000000001000050000001Ecriture enreg longueur 147 yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyl
+])
+
+AT_CLEANUP

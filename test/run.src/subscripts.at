@@ -1,0 +1,689 @@
+### OpenCOBOL Test Suite				-*- m4 -*-
+
+## Copyright (C) 2003-2007 Keisuke Nishida
+## Copyright (C) 2007 Roger While
+## Copyright (C) 2008 Cobol-IT
+##
+## This program is free software; you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation; either version 2, or (at your option)
+## any later version.
+## 
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+## 
+## You should have received a copy of the GNU General Public License
+## along with this software; see the file COPYING.  If not, write to
+## the Free Software Foundation, 51 Franklin Street, Fifth Floor
+## Boston, MA 02110-1301 USA
+
+### ISO+IEC+1989-2002 8.4.1.2 Subscripts
+
+## 8.4.1.2.3 General rules
+
+
+# 1) TODO
+
+AT_SETUP([non-numeric subscript])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       01 G1.
+         02 X           PIC X OCCURS 10.
+       01 I             PIC X.
+       PROCEDURE        DIVISION.
+           DISPLAY X(I)
+           END-DISPLAY.
+           DISPLAY X(I + 1)
+           END-DISPLAY.
+           STOP RUN.
+])
+
+AT_CHECK([${COMPILE_ONLY} prog.cob], [1], ,
+[prog.cob:10: Error: 'I' is not an integer value
+prog.cob:12: Error: 'I' is not a numeric value
+])
+
+AT_CLEANUP
+
+
+# 2) DONE
+
+AT_SETUP([The range of subscripts])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       01 G1.
+         02 X           OCCURS 2.
+           03 Y         PIC X OCCURS 3.
+       PROCEDURE        DIVISION.
+           DISPLAY X(0)
+           END-DISPLAY.
+           DISPLAY X(1)
+           END-DISPLAY.
+           DISPLAY X(2)
+           END-DISPLAY.
+           DISPLAY X(3)
+           END-DISPLAY.
+           DISPLAY Y(1, 0)
+           END-DISPLAY.
+           DISPLAY Y(1, 1)
+           END-DISPLAY.
+           DISPLAY Y(1, 3)
+           END-DISPLAY.
+           DISPLAY Y(1, 4)
+           END-DISPLAY.
+           STOP RUN.
+])
+
+AT_CHECK([${COMPILE_ONLY} prog.cob], [1], ,
+[prog.cob:10: Error: Subscript of 'X' out of bounds: 0
+prog.cob:16: Error: Subscript of 'X' out of bounds: 3
+prog.cob:18: Error: Subscript of 'Y' out of bounds: 0
+prog.cob:24: Error: Subscript of 'Y' out of bounds: 4
+])
+
+AT_CLEANUP
+
+
+AT_SETUP([Subscript out of bounds (1)])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       01 G.
+         02 X           PIC X OCCURS 10.
+       01 I             PIC 9 VALUE 0.
+       PROCEDURE        DIVISION.
+           DISPLAY X(I)
+           END-DISPLAY.
+           STOP RUN.
+])
+
+AT_CHECK([${COMPILE} -debug -o prog prog.cob])
+AT_CHECK([./prog], [140], ,
+[prog.cob:10: libcob: Subscript of 'X' out of bounds: 0
+])
+
+AT_CLEANUP
+
+
+AT_SETUP([Subscript out of bounds (2)])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       01 G.
+         02 X           PIC X OCCURS 10.
+       01 I             PIC 99 VALUE 11.
+       PROCEDURE        DIVISION.
+           DISPLAY X(I)
+           END-DISPLAY.
+           STOP RUN.
+])
+
+AT_CHECK([${COMPILE} -debug -o prog prog.cob])
+AT_CHECK([./prog], [140], ,
+[prog.cob:10: libcob: Subscript of 'X' out of bounds: 11
+])
+
+AT_CLEANUP
+
+
+AT_SETUP([Value of DEPENDING ON N out of bounds (lower)])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       01 G.
+         02 X           PIC X OCCURS 4 TO 6 DEPENDING ON N.
+       01 N             PIC 9 VALUE 3.
+       PROCEDURE        DIVISION.
+           DISPLAY X(5)
+           END-DISPLAY.
+           STOP RUN.
+])
+
+AT_CHECK([${COMPILE} -debug -o prog prog.cob])
+AT_CHECK([./prog], [139], ,
+[prog.cob:10: libcob: OCCURS DEPENDING ON 'N' out of bounds: 3
+])
+
+AT_CLEANUP
+
+
+AT_SETUP([Value of DEPENDING ON N out of bounds (upper)])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       01 G.
+         02 X           PIC X OCCURS 4 TO 6 DEPENDING ON N.
+       01 N             PIC 9 VALUE 7.
+       PROCEDURE        DIVISION.
+           DISPLAY X(5)
+           END-DISPLAY.
+           STOP RUN.
+])
+
+AT_CHECK([${COMPILE} -debug -o prog prog.cob])
+AT_CHECK([./prog], [139], ,
+[prog.cob:10: libcob: OCCURS DEPENDING ON 'N' out of bounds: 7
+])
+
+AT_CLEANUP
+
+
+AT_SETUP([Subscript bounds with ODO (lower)])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       01 G.
+         02 X           PIC X OCCURS 4 TO 6 DEPENDING ON N.
+       01 N             PIC 9 VALUE 4.
+       PROCEDURE        DIVISION.
+           DISPLAY X(0)
+           END-DISPLAY.
+           STOP RUN.
+])
+
+AT_CHECK([${COMPILE} -debug -o prog prog.cob], [1], ,
+[prog.cob:10: Error: Subscript of 'X' out of bounds: 0
+])
+
+AT_CLEANUP
+
+
+AT_SETUP([Subscript bounds with ODO (upper)])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       01 G.
+         02 X           PIC X OCCURS 4 TO 6 DEPENDING ON N.
+       01 N             PIC 9 VALUE 4.
+       PROCEDURE        DIVISION.
+           DISPLAY X(7)
+           END-DISPLAY.
+           STOP RUN.
+])
+
+AT_CHECK([${COMPILE} -debug -o prog prog.cob], [1], ,
+[prog.cob:10: Error: Subscript of 'X' out of bounds: 7
+])
+
+AT_CLEANUP
+
+
+AT_SETUP([Subscript bounds with ODO])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       01 G.
+         02 X           PIC X OCCURS 4 TO 6 DEPENDING ON N.
+       01 N             PIC 9 VALUE 4.
+       PROCEDURE        DIVISION.
+           DISPLAY X(5)
+           END-DISPLAY.
+           STOP RUN.
+])
+
+AT_CHECK([${COMPILE} -debug -o prog prog.cob])
+AT_CHECK([./prog], [140], ,
+[prog.cob:10: libcob: Subscript of 'X' out of bounds: 5
+])
+
+AT_CLEANUP
+
+AT_SETUP([Subscript bounds in cmp])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       01 G.
+         02 X           PIC X OCCURS 9.
+       01 N1            PIC 99 VALUE 10.
+       01 N2            PIC 99 VALUE 10.
+       PROCEDURE        DIVISION.
+           IF X(N1) = X(N2)   DISPLAY "KO".
+           STOP RUN.
+])
+
+AT_CHECK([${COMPILE} -debug -o prog prog.cob])
+AT_CHECK([./prog], [140], ,
+[prog.cob:11: libcob: Subscript of 'X' out of bounds: 10
+])
+
+AT_CLEANUP
+
+
+##
+
+AT_SETUP([Subscript by arithmetic expression])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       01 G             VALUE "1234".
+         02 X           PIC X OCCURS 4.
+       PROCEDURE        DIVISION.
+           DISPLAY X((3 + 1) / 2) NO ADVANCING
+           END-DISPLAY.
+           DISPLAY X(2 ** 2) NO ADVANCING
+           END-DISPLAY.
+           STOP RUN.
+])
+
+AT_CHECK([${COMPILE} -debug -o prog prog.cob])
+AT_CHECK([./prog], [0], [24])
+
+AT_CLEANUP
+
+AT_SETUP([Subscript in move])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       01 G .
+         02 X           PIC X OCCURS 4.
+         02 R           PIC 99 OCCURS 4 COMP.
+         02 F           OCCURS 4 COMP-2.
+       01 RR PIC 99.
+       01 II PIC 99 COMP.
+      
+       PROCEDURE        DIVISION.
+ 	   MOVE 2 TO RR.
+ 	   MOVE 4 TO II.
+ 	   MOVE 1 TO R(1).
+ 	   MOVE 2 TO R(RR).
+ 	   MOVE 4 TO R(II).
+	   MOVE 12 TO F(R(1)).
+	   COMPUTE F(R(RR)) = F(R(1)) * 2.
+	   MOVE F(R(RR)) TO R(R(II)).
+           DISPLAY R(4) NO ADVANCING
+           END-DISPLAY.
+           STOP RUN.
+])
+
+AT_CHECK([${COMPILE} -w -debug -o prog prog.cob])
+AT_CHECK([./prog], [0], [24])
+
+AT_CLEANUP
+
+AT_SETUP([Subscript complex ODO])
+
+AT_DATA([conf.cfg], [
+include "default.conf"
+complex-odo: yes
+odo-slide: yes
+])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       ENVIRONMENT      DIVISION.
+       DATA             DIVISION.
+       WORKING-STORAGE SECTION.
+        01  FAE-LOCAL.                                                           
+         02 AAA. 
+            05 X  PIC 99.
+            05 Y  PIC 99 COMP.
+            05 Z  PIC 99 COMP-3.
+          02 VVX. 
+            05 XX  OCCURS 5 DEPENDING ON X.
+              10 XXX PIC X(1).
+            05 YY  OCCURS 5 DEPENDING ON Y.
+              10 YYY PIC X(2).
+            05 ZZ  OCCURS 5 DEPENDING ON Z.
+              10 ZZZ PIC X(3).
+
+       PROCEDURE        DIVISION.
+           INITIALIZE FAE-LOCAL
+           MOVE    01 TO X
+           MOVE    01 TO Y
+           MOVE    01 TO Z
+           MOVE    'A' TO XXX(1)
+           MOVE    'BB' TO YYY(1)
+           MOVE    'CCC' TO ZZZ(1)
+           DISPLAY "|" VVX "|".
+           INITIALIZE FAE-LOCAL
+           MOVE    03 TO X
+           MOVE    02 TO Y
+           MOVE    01 TO Z
+           MOVE    'A' TO XXX(3)
+           MOVE    'BB' TO YYY(2)
+           MOVE    'CCC' TO ZZZ(1)
+           DISPLAY "|" VVX "|".
+           DISPLAY "|" FUNCTION LENGTH(XX) "|".
+           DISPLAY "|" FUNCTION LENGTH(VVX) "|".
+           DISPLAY "|" FUNCTION LENGTH(FAE-LOCAL) "|".
+           STOP RUN.
+])
+
+AT_CHECK([${COMPILE} -conf=conf.cfg -o prog prog.cob])
+AT_CHECK([./prog], [0], 
+[|ABBCCC|
+|  A  BBCCC|
+|000000003|
+|000000010|
+|000000015|
+])
+
+AT_CHECK([${COMPILE} -conf=conf.cfg -fno-odo-slide -o prog prog.cob])
+AT_CHECK([./prog], [0], 
+[|A    BB        CCC|
+|  A    BB      CCC|
+|000000003|
+|000000018|
+|000000023|
+])
+
+AT_CLEANUP
+
+AT_SETUP([Subscript complex ODO II])
+
+AT_DATA([conf.cfg], [
+include "default.conf"
+complex-odo: yes
+odo-slide: yes
+])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       ENVIRONMENT      DIVISION.
+       DATA             DIVISION.
+       WORKING-STORAGE SECTION.
+        01  FAE-LOCAL.                                                           
+         02 AAA. 
+            05 X  PIC 99.
+            05 Y  PIC 99 COMP.
+            05 Z  PIC 99 COMP-3.
+          02 VVX. 
+            05 XX  OCCURS 5 DEPENDING ON X.
+              10 XXX PIC X(1).
+            05 YY  OCCURS 5 DEPENDING ON Y.
+              10 YYY PIC X(2).
+            05 ZZ  OCCURS 5 DEPENDING ON Z.
+              10 ZZZ PIC X(3).
+	    05 TT PIC X.
+
+       PROCEDURE        DIVISION.
+           INITIALIZE FAE-LOCAL
+           MOVE    01 TO X
+           MOVE    01 TO Y
+           MOVE    01 TO Z
+	   MOVE    'T' TO TT
+           MOVE    'A' TO XXX(1)
+           MOVE    'BB' TO YYY(1)
+           MOVE    'CCC' TO ZZZ(1)
+           DISPLAY "|" VVX "|".
+           INITIALIZE FAE-LOCAL
+           MOVE    03 TO X
+           MOVE    02 TO Y
+           MOVE    01 TO Z
+	   MOVE    'T' TO TT
+           MOVE    'A' TO XXX(3)
+           MOVE    'BB' TO YYY(2)
+           MOVE    'CCC' TO ZZZ(1)
+           DISPLAY "|" VVX "|".
+           DISPLAY "|" FUNCTION LENGTH(XX) "|".
+           DISPLAY "|" FUNCTION LENGTH(VVX) "|".
+           DISPLAY "|" FUNCTION LENGTH(FAE-LOCAL) "|".
+           STOP RUN.
+])
+
+AT_CHECK([${COMPILE} -conf=conf.cfg -o prog prog.cob])
+AT_CHECK([./prog], [0], 
+[|ABBCCCT|
+|  A  BBCCCT|
+|000000003|
+|000000011|
+|000000016|
+])
+
+AT_CHECK([${COMPILE} -conf=conf.cfg -fno-odo-slide -o prog prog.cob])
+AT_CHECK([./prog], [0], 
+[|A    BB        CCC            T|
+|  A    BB      CCC            T|
+|000000003|
+|31|
+|36|
+])
+
+AT_CLEANUP
+
+AT_SETUP([Subscript complex ODO III])
+
+AT_DATA([conf.cfg], [
+include "default.conf"
+complex-odo: yes
+odo-slide: yes
+])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       ENVIRONMENT      DIVISION.
+       DATA             DIVISION.
+       WORKING-STORAGE SECTION.
+        01  FAE-LOCAL.                                                           
+          02 AAA. 
+            05 X  PIC 99.
+            05 Y  PIC 99 COMP.
+            05 Z  PIC 99 COMP-3.
+          02 VVX. 
+            05 XX  OCCURS 5 DEPENDING ON X.
+              10 XXX PIC X(1).
+            05 YY  OCCURS 5 DEPENDING ON Y.
+              10 YYY PIC X(2).
+          02 ZZ  OCCURS 5 DEPENDING ON Z.
+            10 ZZZ PIC X(3).
+
+       PROCEDURE        DIVISION.
+           INITIALIZE FAE-LOCAL
+           MOVE    01 TO X
+           MOVE    01 TO Y
+           MOVE    01 TO Z
+           MOVE    'A' TO XXX(1)
+           MOVE    'BB' TO YYY(1)
+           MOVE    'CCC' TO ZZZ(1)
+           DISPLAY "|" VVX "|".
+           INITIALIZE FAE-LOCAL
+           MOVE    03 TO X
+           MOVE    02 TO Y
+           MOVE    01 TO Z
+           MOVE    'A' TO XXX(3)
+           MOVE    'BB' TO YYY(2)
+           MOVE    'CCC' TO ZZZ(1)
+           DISPLAY "|" VVX "|".
+           DISPLAY "|" FUNCTION LENGTH(XX) "|".
+           DISPLAY "|" FUNCTION LENGTH(VVX) "|".
+           DISPLAY "|" FUNCTION LENGTH(FAE-LOCAL) "|".
+           STOP RUN.
+])
+
+AT_CHECK([${COMPILE} -conf=conf.cfg -o prog prog.cob])
+AT_CHECK([./prog], [0], 
+[|ABB|
+|  A  BB|
+|000000003|
+|000000007|
+|000000015|
+])
+
+AT_CHECK([${COMPILE} -conf=conf.cfg -fno-odo-slide -o prog prog.cob])
+AT_CHECK([./prog], [0], 
+[|A    BB|
+|  A    BB|
+|000000003|
+|000000009|
+|000000023|
+])
+
+AT_CLEANUP
+
+AT_SETUP([Subscript complex ODO IV])
+
+AT_DATA([conf.cfg], [
+include "default.conf"
+complex-odo: yes
+odo-slide: yes
+])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       ENVIRONMENT      DIVISION.
+       DATA             DIVISION.
+       WORKING-STORAGE SECTION.
+        01  FAE-LOCAL.                                                           
+         02 AAA. 
+            05 X  PIC 99.
+            05 Y  PIC 99.
+            05 Z  PIC 99.
+          02 VVX. 
+            05 XX  OCCURS 5 DEPENDING ON X.
+              10 XXX PIC X(1).
+            05 YY  OCCURS 5 DEPENDING ON Y.
+              10 YYY PIC X(2).
+            05 ZZ  OCCURS 5 DEPENDING ON Z.
+              10 ZZZ PIC X(3).
+	  02 TT PIC X.
+
+       PROCEDURE        DIVISION.
+           INITIALIZE FAE-LOCAL
+           MOVE    01 TO X
+           MOVE    01 TO Y
+           MOVE    01 TO Z
+	   MOVE    'T' TO TT
+           MOVE    'A' TO XXX(1)
+           MOVE    'BB' TO YYY(1)
+           MOVE    'CCC' TO ZZZ(1)
+           DISPLAY "|" VVX "|".
+           INITIALIZE FAE-LOCAL
+           MOVE    03 TO X
+           MOVE    02 TO Y
+           MOVE    01 TO Z
+	   MOVE    'T' TO TT
+           MOVE    'A' TO XXX(3)
+           MOVE    'BB' TO YYY(2)
+           MOVE    'CCC' TO ZZZ(1)
+           DISPLAY "|" VVX "|".
+           DISPLAY "|" FAE-LOCAL "|".
+           DISPLAY "|" FUNCTION LENGTH(XX) "|".
+           DISPLAY "|" FUNCTION LENGTH(VVX) "|".
+           DISPLAY "|" FUNCTION LENGTH(FAE-LOCAL) "|".
+           STOP RUN.
+])
+
+AT_CHECK([${COMPILE} -conf=conf.cfg -o prog prog.cob])
+AT_CHECK([./prog], [0], 
+[|ABBCCC|
+|  A  BBCCC|
+|030201  A  BBCCCT|
+|000000003|
+|000000010|
+|000000017|
+])
+
+AT_CHECK([${COMPILE} -conf=conf.cfg -fno-odo-slide -o prog prog.cob])
+AT_CHECK([./prog], [0], 
+[|A    BB        CCC|
+|  A    BB      CCC|
+|030201  A    BB      CCC            T|
+|000000003|
+|000000018|
+|37|
+])
+
+AT_CLEANUP
+
+AT_SETUP([Zero subscript])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID.    prog.
+       DATA  DIVISION.
+       WORKING-STORAGE SECTION.
+       77  UBIN        PIC  9(8) BINARY.
+       77  SBIN        PIC S9(8) BINARY.
+       77  UNUP        PIC  9(8).
+       77  SNUP        PIC S9(8).
+
+       01  TSTREC.
+           05  TSTX PIC X(4) OCCURS 3 TIMES.
+           05  TSTY PIC X(4) OCCURS 3 TIMES.
+
+       PROCEDURE DIVISION.
+           MOVE ALL 'A' TO TSTX(1).
+           MOVE ALL 'B' TO TSTX(2).
+           MOVE ALL 'C' TO TSTX(3).
+           MOVE ALL '1' TO TSTY(1).
+           MOVE ALL '2' TO TSTY(2).
+           MOVE ALL '3' TO TSTY(3).
+           DISPLAY "Zero subcript test" UPON CONSOLE.
+           MOVE 0  TO UNUP.
+           DISPLAY "UNUP: " UNUP " is :" TSTY(UNUP) ":" UPON CONSOLE.
+           MOVE 0  TO SNUP.
+           DISPLAY "SNUP: " SNUP " is :" TSTY(SNUP) ":" UPON CONSOLE.
+           MOVE 0  TO SBIN.
+           DISPLAY "SBIN: " SBIN " is :" TSTY(SBIN) ":" UPON CONSOLE.
+           MOVE -1 TO SBIN.
+           DISPLAY "SBIN: " SBIN " is :" TSTY(SBIN) ":" UPON CONSOLE.
+           MOVE 'xxx'   TO TSTY(SBIN).
+           DISPLAY "SBIN: " SBIN " is :" TSTY(SBIN) ":" UPON CONSOLE.
+      * The following would often core dump
+           MOVE 0 TO UBIN.
+           DISPLAY "UBIN: " UBIN " is :" TSTY(UBIN) ":" UPON CONSOLE.
+           MOVE 'xxx'   TO TSTY(UBIN).
+           MOVE 1 TO UBIN.
+           DISPLAY "UBIN: " UBIN " is :" TSTY(UBIN) ":" UPON CONSOLE.
+           STOP RUN.
+])
+
+AT_CHECK([${COMPILE} -o prog prog.cob])
+AT_CHECK([./prog], [0], 
+[Zero subcript test
+UNUP: 00000000 is :CCCC:
+SNUP: +00000000 is :CCCC:
+SBIN: +00000000 is :CCCC:
+SBIN: -00000001 is :BBBB:
+SBIN: -00000001 is :xxx :
+UBIN: 00000000 is :CCCC:
+UBIN: 00000001 is :1111:
+])
+
+AT_CLEANUP
+
+

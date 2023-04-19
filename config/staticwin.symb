@@ -1,0 +1,11 @@
+#default static symbol list
+# Value: Symbols to be genarated as static ref when used in a call
+# (case dependent)
+# external-static-link: myfunc               refer a non cobol external symbol
+# static-link: myfunc                        refer a cobol or non cobol symbol
+# eg: 
+#static-link: myfunc 
+#     CALL "myfunc"  will generate a myfunc() 
+#
+include "oraclewin.symb"
+include "tuxedowin.symb"

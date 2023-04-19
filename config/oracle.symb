@@ -1,0 +1,54 @@
+#static symbol list for Oracle
+# Value: Symbols to be genarated as static ref when used in a call
+# (case dependent)
+# eg: 
+#staticx-link: myfunc 
+#     CALL "myfunc"  will generate a myfunc() 
+#
+staticx-link: SQLAB1
+staticx-link: SQLGSST
+staticx-link: SQLGSS
+staticx-link: SQLGS2
+staticx-link: SQLGLS
+staticx-link: SQLGLST
+staticx-link: SQLADR
+staticx-link: SQLADRCR
+staticx-link: SQLADRVC
+staticx-link: SQLAD1
+staticx-link: SQLALD
+staticx-link: SQLALDT
+staticx-link: SQLBS1
+staticx-link: SQLCDA
+staticx-link: SQLCUR
+staticx-link: SQLFCC
+staticx-link: SQLFCH
+staticx-link: SQLGB1
+staticx-link: SQLLO1
+staticx-link: SQLLDA
+staticx-link: SQLLD2
+staticx-link: SQLLEN
+staticx-link: SQLMOV
+staticx-link: SQLOCA
+staticx-link: SQLOS1
+staticx-link: SQLPCS
+staticx-link: SQLSQS
+staticx-link: SQLSTRD
+staticx-link: SQLTFL
+staticx-link: SQLTOC
+staticx-link: SQLGRI
+staticx-link: SQLNUL
+staticx-link: SQLNULT
+staticx-link: SQLPRC
+staticx-link: SQLPRCT
+staticx-link: SQLPR2
+staticx-link: SQLPR2T
+staticx-link: SQLBEX
+staticx-link: SQLBXT
+staticx-link: SQLORA
+staticx-link: SQLORAT
+staticx-link: SQLGLM
+staticx-link: SQLGLMT
+staticx-link: SQLBCC
+staticx-link: SQLBTE
+staticx-link: DSNTIAR
+staticx-link: SQLROWIDGET

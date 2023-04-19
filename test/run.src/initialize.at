@@ -1,0 +1,1044 @@
+### OpenCOBOL Test Suite				-*- m4 -*-
+
+## Copyright (C) 2003-2007 Keisuke Nishida
+## Copyright (C) 2007 Roger While
+## Copyright (C) 2008 Cobol-IT
+##
+## This program is free software; you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation; either version 2, or (at your option)
+## any later version.
+## 
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+## 
+## You should have received a copy of the GNU General Public License
+## along with this software; see the file COPYING.  If not, write to
+## the Free Software Foundation, 51 Franklin Street, Fifth Floor
+## Boston, MA 02110-1301 USA
+
+### ISO+IEC+1989-2002 14.8.19 INITIALIZE statement
+
+## 14.8.19.3 General rules
+
+
+
+AT_SETUP([INITIALIZE group entry with OCCURS])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       01 G1.
+         02 G2          OCCURS 2.
+           03 X1        PIC X.
+           03 X2        PIC 9.
+       PROCEDURE        DIVISION.
+           MOVE SPACE TO G1.
+           INITIALIZE G2 (2).
+           DISPLAY G1 NO ADVANCING
+           END-DISPLAY.
+           STOP RUN.
+])
+
+AT_CHECK([${COMPILE} -o prog prog.cob])
+AT_CHECK([./prog], [0], [   0])
+
+AT_CLEANUP
+
+
+AT_SETUP([INITIALIZE OCCURS with numeric edited])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       01 G1.
+         02 G2          OCCURS 5.
+           03 X         PIC Z9.
+       PROCEDURE        DIVISION.
+           INITIALIZE G1.
+           DISPLAY G1 NO ADVANCING
+           END-DISPLAY.
+           STOP RUN.
+])
+
+AT_CHECK([${COMPILE} -o prog prog.cob])
+AT_CHECK([./prog], [0], [ 0 0 0 0 0])
+
+AT_CLEANUP
+
+
+AT_SETUP([MOVE space group entry with OCCURS spzero])
+
+AT_DATA([prog.cob], [
+      $set spzero
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       01 G1.
+         02 G2          OCCURS 2.
+           03 X1        PIC X.
+           03 X2        PIC 9.
+       PROCEDURE        DIVISION.
+           MOVE SPACE TO G1.
+           DISPLAY G1 NO ADVANCING.
+	   DISPLAY X2(1) X2(2) NO ADVANCING.
+	   IF X2(1) = space 
+		DISPLAY "S" NO ADVANCING.
+	   IF X2(1) = 0 
+		DISPLAY "0" NO ADVANCING.
+	   IF X2(1) = zero 
+		DISPLAY "Z" NO ADVANCING.
+
+           STOP RUN.
+])
+
+AT_CHECK([${COMPILE} -w -o prog prog.cob])
+AT_CHECK([./prog], [0], [    000Z])
+
+AT_CLEANUP
+
+
+AT_SETUP([MOVE space OCCURS with numeric edited spzero])
+
+AT_DATA([prog.cob], [
+      $set spzero
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       01 G1.
+         02 G2          OCCURS 5.
+           03 X         PIC Z9.
+       PROCEDURE        DIVISION.
+           MOVE SPACE TO G1.
+           DISPLAY G1 NO ADVANCING
+           END-DISPLAY.
+           STOP RUN.
+])
+
+AT_CHECK([${COMPILE} -w -o prog prog.cob])
+AT_CHECK([./prog], [0], [          ])
+
+AT_CLEANUP
+
+AT_SETUP([INITIALIZE OCCURS])
+
+AT_DATA([prog.cob], [
+       identification division.
+       program-id. prog.
+       ENVIRONMENT DIVISION.
+       CONFIGURATION SECTION.
+   170 DATA DIVISION.
+   180 FILE SECTION.
+       WORKING-STORAGE SECTION.
+       01 aa PIC 99.
+       01 WPRGINIT OCCURS 3 DEPENDING ON aa 
+             PIC X(4).
+       01 Goup1.
+         02 WPRGINIT1 OCCURS 3 DEPENDING ON aa 
+             PIC X(4).
+       01 WPRGINIT2 OCCURS 3 PIC X(4).
+       01 WPRGINIT3 OCCURS 3 PIC X(4) VALUE SPACES.
+       01 COCO .
+         02 WPRGINIT4 OCCURS 3 PIC X(4) VALUE SPACES.
+         02 WPRGINIT5 OCCURS 3 PIC X(4) VALUE ZEROS.
+       LINKAGE SECTION.
+       PROCEDURE DIVISION .
+       INIT SECTION.
+       LEV000.
+           MOVE 3 TO aa.
+           DISPLAY '"' WPRGINIT(1)  WPRGINIT(2)  WPRGINIT(3)  '"'
+           DISPLAY '"' WPRGINIT1(1) WPRGINIT1(2) WPRGINIT1(3) '"' 
+           DISPLAY '"' WPRGINIT2(1) WPRGINIT2(2) WPRGINIT2(3) '"' 
+           DISPLAY '"' WPRGINIT3(1) WPRGINIT3(2) WPRGINIT3(3) '"' 
+           DISPLAY '"' WPRGINIT4(1) WPRGINIT4(2) WPRGINIT4(3) '"' 
+           DISPLAY '"' WPRGINIT5(1) WPRGINIT5(2) WPRGINIT5(3) '"' 
+           MOVE ZEROS TO WPRGINIT
+           MOVE ZEROS TO WPRGINIT1
+           MOVE ZEROS TO WPRGINIT2
+           MOVE ZEROS TO WPRGINIT3
+           MOVE ZEROS TO WPRGINIT4
+           MOVE ZEROS TO WPRGINIT5
+           DISPLAY '"' WPRGINIT(1)  WPRGINIT(2)  WPRGINIT(3)  '"'
+           DISPLAY '"' WPRGINIT1(1) WPRGINIT1(2) WPRGINIT1(3) '"' 
+           DISPLAY '"' WPRGINIT2(1) WPRGINIT2(2) WPRGINIT2(3) '"' 
+           DISPLAY '"' WPRGINIT3(1) WPRGINIT3(2) WPRGINIT3(3) '"' 
+           DISPLAY '"' WPRGINIT4(1) WPRGINIT4(2) WPRGINIT4(3) '"' 
+           DISPLAY '"' WPRGINIT5(1) WPRGINIT5(2) WPRGINIT5(3) '"' 
+           MOVE SPACE TO WPRGINIT(2)
+           MOVE SPACE TO WPRGINIT1(2)
+           MOVE SPACE TO WPRGINIT2(2)
+           MOVE SPACE TO WPRGINIT3(2)
+           MOVE SPACE TO WPRGINIT4(2)
+           MOVE SPACE TO WPRGINIT5(2)
+           DISPLAY '"' WPRGINIT(1)  WPRGINIT(2)  WPRGINIT(3)  '"'
+           DISPLAY '"' WPRGINIT1(1) WPRGINIT1(2) WPRGINIT1(3) '"' 
+           DISPLAY '"' WPRGINIT2(1) WPRGINIT2(2) WPRGINIT2(3) '"' 
+           DISPLAY '"' WPRGINIT3(1) WPRGINIT3(2) WPRGINIT3(3) '"' 
+           DISPLAY '"' WPRGINIT4(1) WPRGINIT4(2) WPRGINIT4(3) '"' 
+           DISPLAY '"' WPRGINIT5(1) WPRGINIT5(2) WPRGINIT5(3) '"' 
+           INITIALIZE WPRGINIT
+           INITIALIZE WPRGINIT1
+           INITIALIZE WPRGINIT2
+           INITIALIZE WPRGINIT3
+           INITIALIZE WPRGINIT4
+           INITIALIZE WPRGINIT5
+           DISPLAY '"' WPRGINIT(1)  WPRGINIT(2)  WPRGINIT(3)  '"'
+           DISPLAY '"' WPRGINIT1(1) WPRGINIT1(2) WPRGINIT1(3) '"' 
+           DISPLAY '"' WPRGINIT2(1) WPRGINIT2(2) WPRGINIT2(3) '"' 
+           DISPLAY '"' WPRGINIT3(1) WPRGINIT3(2) WPRGINIT3(3) '"' 
+           DISPLAY '"' WPRGINIT4(1) WPRGINIT4(2) WPRGINIT4(3) '"' 
+           DISPLAY '"' WPRGINIT5(1) WPRGINIT5(2) WPRGINIT5(3) '"' 
+           GOBACK.              
+])
+
+AT_CHECK([${COMPILE} -o prog -std=mf prog.cob])
+AT_CHECK([./prog], [0], 
+["            "
+"            "
+"            "
+"            "
+"            "
+"000000000000"
+"000000000000"
+"000000000000"
+"000000000000"
+"000000000000"
+"000000000000"
+"000000000000"
+"0000    0000"
+"0000    0000"
+"0000    0000"
+"0000    0000"
+"0000    0000"
+"0000    0000"
+"            "
+"            "
+"            "
+"            "
+"            "
+"            "
+])
+
+AT_CLEANUP
+
+AT_SETUP([INITIALIZE complex group (1)])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       01 G1.
+         02 X           PIC X.
+         02 G2          OCCURS 2.
+           03 Y         PIC 9.
+         02 Z           PIC 9.
+       PROCEDURE        DIVISION.
+           INITIALIZE G1.
+           DISPLAY G1 NO ADVANCING
+           END-DISPLAY.
+           STOP RUN.
+])
+
+AT_CHECK([${COMPILE} -o prog prog.cob])
+AT_CHECK([./prog], [0], [ 000])
+
+AT_CLEANUP
+
+AT_SETUP([INITIALIZE complex group (2)])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       01 G1.
+         02 G2          OCCURS 2.
+           03 X         PIC 9.
+           03 Y         PIC X OCCURS 2.
+           03 Z         PIC X.
+       PROCEDURE        DIVISION.
+           INITIALIZE G1.
+           DISPLAY G1 NO ADVANCING
+           END-DISPLAY.
+           STOP RUN.
+])
+
+AT_CHECK([${COMPILE} -o prog prog.cob])
+AT_CHECK([./prog], [0], [0   0   ])
+
+AT_CLEANUP
+
+AT_SETUP([INITIALIZE complex group (3)])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       01 TopG.
+         02 G1.
+           05 X           PIC X(10) 
+	        VALUE '0123456789'.
+           05 Y           PIC X(10)
+	        VALUE '0123456789'.
+           05 Z           PIC X(10)
+	        VALUE '0123456789'.
+         02 G2.
+           05 X           PIC X VALUE 'A'.
+       PROCEDURE        DIVISION.
+           INITIALIZE G1(20:).
+           DISPLAY G1 G2 NO ADVANCING
+           END-DISPLAY.
+           STOP RUN.
+])
+
+AT_CHECK([${COMPILE} -o prog prog.cob])
+AT_CHECK([./prog], [0], 
+[0123456789012345678           A])
+
+AT_CLEANUP
+
+AT_SETUP([INITIALIZE WITH FILLER])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       ENVIRONMENT      DIVISION.
+       WORKING-STORAGE SECTION.
+       01 STRUCA.
+            05 AA PIC 9 .
+            05 FILLER PIC X VALUE "A".
+            05 BB PIC 9 .
+            05 FILLER PIC X VALUE "A".
+            05 CC PIC 9 .
+            05 FILLER PIC X VALUE "A".
+       01 STRUCB REDEFINES STRUCA.
+               05 XX PIC 9(6).
+
+       PROCEDURE        DIVISION.
+          DISPLAY ":" STRUCA ":".
+          MOVE 999999 TO XX.
+          INITIALIZE STRUCA.
+          DISPLAY ":" STRUCA ":".
+          MOVE 999999 TO XX.
+          INITIALIZE STRUCA WITH FILLER .
+          DISPLAY ":" STRUCA ":".
+          INITIALIZE STRUCB
+          DISPLAY ":" STRUCA ":".
+           STOP RUN.
+])
+
+AT_CHECK([${COMPILE} -o prog prog.cob])
+AT_CHECK([./prog], [0], [:0A0A0A:
+:090909:
+:0 0 0 :
+:000000:
+])
+
+AT_CLEANUP
+AT_SETUP([INITIALIZE EXTERNAL WITH FILLER])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       ENVIRONMENT      DIVISION.
+       WORKING-STORAGE SECTION.
+       01 STRUCA EXTERNAL.
+            05 AA PIC 9 .
+            05 FILLER PIC X VALUE "A".
+            05 BB PIC 9 .
+            05 FILLER PIC X VALUE "A".
+            05 CC PIC 9 .
+            05 FILLER PIC X VALUE "A".
+       01 STRUCB REDEFINES STRUCA.
+               05 XX PIC 9(6).
+
+       PROCEDURE        DIVISION.
+          DISPLAY ":" STRUCA ":".
+          MOVE 999999 TO XX.
+          INITIALIZE STRUCA.
+          DISPLAY ":" STRUCA ":".
+          MOVE 999999 TO XX.
+          INITIALIZE STRUCA WITH FILLER .
+          DISPLAY ":" STRUCA ":".
+          INITIALIZE STRUCB
+          DISPLAY ":" STRUCA ":".
+           STOP RUN.
+])
+
+AT_CHECK([${COMPILE} -o prog prog.cob])
+AT_CHECK([./prog], [0], 
+[:0A0A0A:
+:090909:
+:0 0 0 :
+:000000:
+])
+
+AT_CLEANUP
+
+AT_SETUP([INITIALIZE EXTERNAL])
+
+AT_DATA([sub.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      sub.
+       ENVIRONMENT      DIVISION.
+       WORKING-STORAGE SECTION.
+       01 VV EXTERNAL USAGE COMP-1 VALUE 3.0.
+       01 coco  EXTERNAL PIC XX VALUE "BB".
+       01 STRUCA EXTERNAL.
+            05 AA PIC 9 VALUE 1.
+            05 FILLER PIC X VALUE "B".
+            05 BB PIC 9 VALUE 2.
+            05 FILLER PIC X VALUE "B".
+            05 CC PIC 9 VALUE 3.
+            05 FILLER PIC X VALUE "B".
+
+       PROCEDURE        DIVISION.
+          DISPLAY ":" VV ":" coco ":" STRUCA ":".
+])
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       ENVIRONMENT      DIVISION.
+       WORKING-STORAGE SECTION.
+       01 VV EXTERNAL USAGE COMP-1 VALUE 2.0.
+       01 coco  EXTERNAL PIC XX VALUE "AA".
+       01 STRUCA EXTERNAL.
+            05 AA PIC 9 VALUE 9.
+            05 FILLER PIC X VALUE "A".
+            05 BB PIC 9 VALUE 8.
+            05 FILLER PIC X VALUE "A".
+            05 CC PIC 9 VALUE 7.
+            05 FILLER PIC X VALUE "A".
+
+       PROCEDURE        DIVISION.
+	  call "sub".
+])
+
+AT_CHECK([${COMPILE_MODULE}  sub.cob])
+AT_CHECK([${COMPILE} -o prog prog.cob])
+AT_CHECK([./prog], [0], 
+[:2.000000000000000000:AA:9A8A7A:
+])
+
+AT_CLEANUP
+
+AT_SETUP([INITIALIZE EXTERNAL FILE Record])
+
+
+AT_DATA([prog.cob], [
+       identification division.
+       program-id. initwithfile.
+       environment division.
+       configuration section.
+       file-control.
+    60       SELECT SYSSYS ASSIGN DYNAMIC EFN-SYSSYS
+    70              ORGANIZATION INDEXED                                        
+    80              ACCESS DYNAMIC                                              
+    90              RECORD KEY CLE-SYSSYS
+   100              FILE STATUS FST-SYSSYS
+                    lock mode is automatic.
+    60       SELECT SYSSYS2 ASSIGN EFN-SYSSYS2
+    70              ORGANIZATION INDEXED                                        
+    80              ACCESS DYNAMIC                                              
+    90              RECORD KEY CLE-SYSSYS2
+   100              FILE STATUS FST-SYSSYS2
+                    lock mode is automatic.
+       data division.
+       file section.
+ee-    FD  SYSSYS EXTERNAL.
+   170 01  ENRG-SYSSYS.
+   180     02 CLE-SYSSYS.
+              03 SYSSYS-CODE           PIC X(4).
+           02 data-syssys.
+              03 syssys-password       pic 9(8).
+              03 FILLER                PIC X(76).
+ee-    FD  SYSSYS2 .
+   170 01  ENRG-SYSSYS2.
+   180     02 CLE-SYSSYS2.
+              03 SYSSYS2-CODE           PIC X(4).
+           02 data-syssys2.
+              03 syssys2-password       pic 9(8).
+              03 FILLER                PIC X(76).
+       working-storage section.
+       78 PATH-SIZE VALUE 250.
+       77 fst-syssys   pic xx.
+       77 fst-syssys2   pic xx.
+       77 efn-syssys  pic x(10) value space.
+       77 efn-syssys2  pic x(10) value space.
+       
+      *01  ADDRESS-VAR                  PIC 9(10).
+       01  ADDRESS-VAR                  USAGE POINTER.
+       procedure division.
+       main section.
+       main-st.
+           DISPLAY "'" syssys-password "'" efn-syssys"'"
+           DISPLAY "'" syssys2-password "'" efn-syssys2 "'"
+
+           STOP RUN
+           .
+       main-ex.
+           EXIT.
+])
+
+AT_CHECK([${COMPILE} -w -o prog -std=mf prog.cob])
+AT_CHECK([./prog], [0], 
+['00000000'          '
+'00000000'          '
+])
+
+AT_CLEANUP
+
+AT_SETUP([INITIALIZE Signed EBCDIC])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       ENVIRONMENT      DIVISION.
+       WORKING-STORAGE SECTION.
+       01 STRUCA.
+            05 AA PIC S9(3) .
+            05 BB PIC S9(3) SIGN LEADING .
+            05 CC PIC S9(3) 
+	           SIGN TRAILING SEPARATE.
+            05 DD PIC S9(3) 
+	           SIGN LEADING SEPARATE.
+            05 EE PIC 9(3).
+
+       PROCEDURE        DIVISION.
+          DISPLAY ":" STRUCA ":".
+          INITIALIZE STRUCA.
+          DISPLAY ":" STRUCA ":".
+           STOP RUN.
+])
+
+AT_CHECK([${COMPILE} -fsign-ascii -o prog prog.cob])
+AT_CHECK([./prog], [0], 
+[:000000000++000000:
+:000000000++000000:
+])
+AT_CHECK([${COMPILE} -fsign-ebcdic -o prog prog.cob])
+AT_CHECK([./prog], [0], 
+[:00{{00000++000000:
+:00{{00000++000000:
+])
+
+AT_CLEANUP
+
+AT_SETUP([INITIALIZE BIT Fields & FILLER])
+
+AT_DATA([myconf], [
+include "default.conf"
+binary-size: 1-2-4-8
+filename-mapping: yes
+auto-initialize: no 
+initialize-filler: no 
+initialize-pointer: no
+])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID.  TESTPB.         
+       ENVIRONMENT DIVISION.
+       CONFIGURATION SECTION.
+       SPECIAL-NAMES.
+       INPUT-OUTPUT SECTION.
+       DATA DIVISION.
+      *------------------------*
+       WORKING-STORAGE SECTION.
+      *------------------------*
+
+       01 TEST-ENR.
+*     BOF C-TRANSACTION-BS3500
+*
+       02  C-TRANSACTION.
+       03  FILLER               PIC 1 BIT .
+         88 GUTSCHRIFT VALUE B"1" FALSE B"0".
+       03  FILLER               PIC 1 BIT.
+         88 FILIALE    VALUE B"1" FALSE B"0".
+       03  FILLER1              PIC 1 BIT.
+         88 FILIALE1    VALUE B"1" FALSE B"0".
+       03  WX        PIC X(20).
+       03  WNUM PIC 9(4).
+       03  WCOMP3 PIC 9(4) COMP-3.
+*
+*    EOF C-TRANSACTION-BS3500
+      *------------------*
+       PROCEDURE DIVISION.
+
+       DEBUT.
+        DISPLAY "-- DEFAULT VALUES    ---".
+        PERFORM DEB-DISPLAY THRU FIN-DISPLAY.
+        INITIALIZE C-TRANSACTION.
+        DISPLAY "-- AFTER  INITIALIZE ---".
+        PERFORM DEB-DISPLAY THRU FIN-DISPLAY.
+        MOVE HIGH-VALUE TO C-TRANSACTION.
+        INITIALIZE C-TRANSACTION.
+        DISPLAY "-- AFTER  HIGH-VALUE ---".
+        PERFORM DEB-DISPLAY THRU FIN-DISPLAY.
+        INITIALIZE C-TRANSACTION WITH FILLER.
+        DISPLAY "-- AFTER  WITH FILLER ---".
+        PERFORM DEB-DISPLAY THRU FIN-DISPLAY.
+        GOBACK.
+
+       DEB-DISPLAY.
+        if filiale
+           DISPLAY "filiale true"
+        ELSE
+           if not filiale 
+              DISPLAY "filiale false"
+            ELSE
+              DISPLAY "filiale ????"
+           END-IF
+        END-IF
+
+        if filiale1
+           DISPLAY "filiale1 true"
+        ELSE
+           if not filiale1 
+              DISPLAY "filiale1 false"
+            ELSE
+              DISPLAY "filiale1 ????"
+           END-IF
+        END-IF
+
+       IF filler1 = b"1"
+          DISPLAY "filler1 true"
+        ELSE
+           IF filler1 = b"0"
+              DISPLAY "filler1 false"
+           ELSE
+              DISPLAY "filler1 ????"
+           END-IF
+        END-IF 
+
+        IF WX = SPACES
+           DISPLAY "WX SPACES"
+        ELSE
+           DISPLAY "WX NOT SPACES"   
+        END-IF.
+
+        IF WNUM = 0
+           DISPLAY "WNUM 0"
+        ELSE
+           DISPLAY "WNUM NOT 0"   
+        END-IF.
+
+        IF WCOMP3 = 0
+           DISPLAY "WCOMP3 0"
+        ELSE
+           DISPLAY "WCOMP3 NOT 0"   
+        END-IF.
+       FIN-DISPLAY.
+          EXIT.
+])
+
+AT_CHECK([${COMPILE} -conf=myconf prog.cob])
+AT_CHECK([./prog], [0], 
+[-- DEFAULT VALUES    ---
+filiale false
+filiale1 false
+filler1 false
+WX NOT SPACES
+WNUM 0
+WCOMP3 0
+-- AFTER  INITIALIZE ---
+filiale false
+filiale1 false
+filler1 false
+WX SPACES
+WNUM 0
+WCOMP3 0
+-- AFTER  HIGH-VALUE ---
+filiale true
+filiale1 false
+filler1 false
+WX SPACES
+WNUM 0
+WCOMP3 0
+-- AFTER  WITH FILLER ---
+filiale false
+filiale1 false
+filler1 false
+WX SPACES
+WNUM 0
+WCOMP3 0
+])
+
+AT_CLEANUP
+
+AT_SETUP([CANCEL test])
+
+AT_DATA([callee.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      callee.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       01 G1          PIC 99 VALUE 0.
+       PROCEDURE        DIVISION.
+           DISPLAY G1 NO ADVANCING.
+	   MOVE    55 TO G1.
+])
+
+AT_DATA([caller.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      caller.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       01 Z             PIC 9.
+       PROCEDURE        DIVISION.
+       CALL "callee".
+       CALL "callee".
+       CANCEL "callee".
+       CALL "callee".
+       
+])
+
+AT_CHECK([${COMPILE}  caller.cob])
+AT_CHECK([${COMPILE_MODULE}  callee.cob])
+AT_CHECK([./caller], [0], 
+[005500])
+
+AT_CLEANUP
+
+AT_SETUP([INITIALIZE sub group])
+
+AT_DATA([prog.cob], [
+ identification division.
+ program-id.         prog.
+ environment division.
+ configuration section.
+ special-names.
+     decimal-point   is    comma.
+ input-output section.
+ file-control.
+ data division.
+ file section.
+ working-storage section.
+
+ 01 transaction-storage.
+     02  terminaldata.
+       04  t-kdn             pic 9(6).
+       04  filler redefines t-kdn.
+         06  t-k1            pic 9.
+         06  filler          pic 9(5).
+       04  filler redefines t-kdn.
+         06  t-k12           pic 99.
+         06  t-krest         pic 9(4).
+       04  t-ausw            pic x.
+       04  t-auswn redefines t-ausw  pic 9.
+       04  t-zaus            pic x.
+       04  t-code            pic xx.
+         88  allgemein           value "AL".
+         88  retlager            value "RL".
+         88  retohne             value "RO".
+         88  aender              value "AE".
+       04  t-lsnr            pic 9(6).
+       04  t-bild            pic 99.
+       04  t-end6            pic 9.
+       04  t-abg             pic 9.
+       04  t-kom             pic 9.
+       04  t-fil             pic 999.
+       04  t-kpos            pic s999.
+       04  t-hkpos           pic s999 comp-3.
+       04  t-mbl             pic 9.
+       04  t-prov            pic 9.
+       04  t-lfd             pic s999.
+       04  t-pos             pic s999.
+       04  t-hpos            pic s999 comp-3.
+       04  t-auk19           pic 999.
+       04  filler redefines t-auk19.
+         06  t-auk19-1       pic 9.
+         06  t-auk19-2       pic 9.
+         06  t-auk19-3       pic 9.
+       04  t-gsum            pic s9(7)v99.
+       04  t-ggew            pic s9(4)v999 comp-3.
+       04  t-i               pic 99.
+       04  t-ii              pic 99.
+       04  t-a               pic 99.
+       04  t-nar.
+        05  filler           occurs 4.
+         06  t-nart          pic 9(6).
+         06  t-narx redefines t-nart pic x(6).
+       04  t-znar            pic x(24).
+       04  t-dep             pic 9.
+       04  t-auk20           pic x(4).
+       04  t-ae              pic 9.
+       04  t-cz              pic 999.
+       04  t-auk09           pic 999.
+       04  t-compl-z         pic 9(6) comp-6  .                        
+       04  t-auk06           pic 9(6) comp-6  .                        
+       04  t-aet.
+         06  t-aep           pic 9(6) comp-6  occurs 14.               
+       04  t-subtasknr       pic 99.
+       04  t-jabschl         pic 9.
+       04  t-change          pic 9.
+       04  t-satz            pic x(100) occurs 40.
+       04  t-sind            pic s9(4) binary  occurs 40.
+       04  t-ki44            pic 9(4) comp-6  .                        
+       04  t-ablager         pic 9(8).
+           88  t-pioneer         value 98035371.
+           88  t-aussenlager     value 98000000 thru 98999999.
+           88  t-streckenlager   value 01000000 thru 03999999.
+       04  t-auk43           pic 99   comp-6  .                        
+       04  t-kdart           pic x.
+           88  t-fremdkunde      value "J".
+           88  t-dehnerkunde     value space.
+       04  t-ocode           pic xx.
+       04  t-auk22           pic 9(4).
+       04  t-fachber         pic 9(4).
+
+
+ procedure division.
+*
+ programm-ablauf                        section.
+ programm-ablauf-010.
+
+  	move LOW-VALUES to terminaldata
+        initialize              terminaldata
+        if t-zaus = space
+          display "SPACE OK"
+        end-if
+
+
+*    exit program                                                      
+     goback      .                                                     
+])
+
+AT_CHECK([${COMPILE} -o prog prog.cob -w -free ])
+AT_CHECK([./prog], [0], 
+[SPACE OK
+])
+
+AT_CHECK([${COMPILE} -o prog prog.cob -w -free -O2 ])
+AT_CHECK([./prog], [0], 
+[SPACE OK
+])
+
+AT_CLEANUP
+
+AT_SETUP([INITIALIZE with FILLER -O2 option])
+
+AT_DATA([prog.cob], [
+ identification division.
+ program-id.         prog.
+ environment division.
+ configuration section.
+ source-computer. gcos.
+ object-computer. gcos.
+ special-names.
+     decimal-point is comma.
+ input-output section.
+ data division.
+ file section.
+ working-storage section.
+ 01 TEST-01-A.
+     02  C-TRANSACTION-A.
+       03  FILLER               PIC 1 BIT.
+         88 GUTSCHRIFT-A VALUE B"1" FALSE B"0".
+       03  FILLER               PIC 1 BIT.
+         88 FILIALE-A    VALUE B"1" FALSE B"0".
+       03  T-WEK01-A              PIC 9(10)       comp-6  .               
+       03  T-WEK02-A              PIC 9(7)        comp-6  .               
+       03  T-WEK16-A              PIC 9(8)        comp-6  .               
+       03  T-WEK24-A              PIC 9(10)       comp-6  .               
+       03  T-EL01-A               PIC 9(7)        comp-6  .               
+       03  T-WEK103-A             PIC 9999        comp-6  .               
+       03  T-WEK104-A             PIC 9999        comp-6  .               
+       03  T-WEK105-A             PIC 9999        comp-6  .               
+       03  T-WEK106-A             PIC 9999        comp-6  .               
+       03  BONUSPIC		  PIC 9		  comp-6  .
+procedure division.
+ beginn.
+       set FILIALE-A to true
+       INITIALIZE C-TRANSACTION-A
+       if FILIALE-A 
+	     display "OK"
+       else
+	     display "NOT OK"
+       end-if.
+       STOP RUN.
+
+])
+
+AT_CHECK([${COMPILE} -o prog prog.cob -free -O2 ])
+AT_CHECK([./prog], [0],
+[OK
+])
+
+AT_CHECK([${COMPILE} -o prog prog.cob -free  ])
+AT_CHECK([./prog], [0],
+[OK
+])
+
+AT_CLEANUP
+
+AT_SETUP([INITIALIZE OCCURS COMPOUND ])
+
+AT_DATA([config.conf], [
+include "default.conf"
+sign-ebcdic:yes
+defaultbyte:32
+use-defaultbyte:yes
+initialize-fd:yes
+])
+
+AT_DATA([prog.cob], [
+       ID DIVISION.
+       PROGRAM-ID. test2016.
+
+       ENVIRONMENT DIVISION.
+       CONFIGURATION SECTION.
+       SPECIAL-NAMES.
+
+           DECIMAL-POINT IS COMMA.
+
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+
+       DATA DIVISION.
+
+       WORKING-STORAGE SECTION.
+
+       01 arr01               occurs 5.
+          05 arr05-1          pic x(5)       occurs 5.
+          05 arr05-2          pic x(5)       occurs 5.
+          05 arr05-3          pic x(5)       occurs 5.
+          05 d-betrag1        pic 9(15)   occurs 3.
+
+       01 d-zahlung           occurs 2.                 
+          05 d-sch-s          pic x(20)       occurs 2.
+          05 d-name           pic x(35)       occurs 2.
+          05 d-betreff        pic x(60)       occurs 2.
+          05 d-betragx                        occurs 2.
+             06 d-betrag      pic s9(13)v99.
+
+       PROCEDURE  DIVISION.
+       HAUPTPROGRAMM  SECTION.
+       HP-ANF.
+
+         display "d-sch-s 2-2'" d-sch-s (2 2) "'".
+         STOP RUN.
+])
+
+AT_CHECK([${COMPILE} -conf=config.conf -o prog prog.cob])
+AT_CHECK([./prog], [0],
+[d-sch-s 2-2'                    '
+])
+
+AT_CLEANUP
+
+AT_SETUP([INITIALIZE OCCURS COMPOUND II])
+AT_DATA([prog.cob], [
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID.    prog.
+       ENVIRONMENT DIVISION.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  Z-LAUF                    PIC X(001)  VALUE SPACE.
+       01  I-IND                     PIC 9(003)  VALUE 0.
+       01 W600-PARM.
+          05 W600-REC OCCURS 4.
+             10 W600-FELDN           PIC  X(12).
+             10 W600-TABSTAT.
+                15 W600-FEHLER       PIC  9(03).
+       PROCEDURE DIVISION.
+       S000-KF126 SECTION.
+       S000-00.
+           INITIALIZE W600-PARM.
+           MOVE "1" TO Z-LAUF.
+           PERFORM P010-DISP.
+           MOVE ZERO TO I-IND.
+           PERFORM S000-MOVE.
+           MOVE "2" TO Z-LAUF.
+           PERFORM P010-DISP.
+           INITIALIZE W600-PARM.
+           MOVE "3" TO Z-LAUF.
+           PERFORM P010-DISP.
+       S000-99.
+           EXIT PROGRAM.
+       S000-MOVE SECTION.
+       S000-10.
+           PERFORM UNTIL I-IND = 4
+              ADD 1 TO I-IND
+              MOVE 100 TO W600-FEHLER (I-IND)
+           END-PERFORM
+           .
+       S000-20.
+           EXIT.
+       P010-DISP SECTION.
+       P010-00.
+           MOVE ZERO TO I-IND.
+       P010-10.
+           PERFORM UNTIL I-IND = 4
+               ADD 1 TO I-IND
+               DISPLAY Z-LAUF ":" W600-FEHLER (I-IND)
+           END-PERFORM
+           .
+       P010-99.
+           EXIT.
+])
+AT_CHECK([${COMPILE} -o prog prog.cob])
+AT_CHECK([./prog], [0],
+[1:000
+1:000
+1:000
+1:000
+2:100
+2:100
+2:100
+2:100
+3:000
+3:000
+3:000
+3:000
+])
+
+AT_CLEANUP
+
+AT_SETUP([INITIALIZE RANGE CHECKING])
+AT_DATA([prog.cob], [
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. 'TSTSQLDA'.
+      *
+       ENVIRONMENT DIVISION.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+      *
+       01  SQLDA SYNC.
+           05 SQLN PIC S9(4) COMP-5.
+           05 A PIC S9(4) COMP-5.
+           05 SQLVAR-ENTRIES OCCURS 0 TO 1489 TIMES
+              DEPENDING ON SQLN .
+              10 SQLVAR.
+                 15 SQLTYPE PIC S9(4) COMP-5.
+                 15 SQLDATA USAGE POINTER.
+      *
+       PROCEDURE DIVISION.
+      *
+       S0000-START-PROCESSING SECTION.
+      *
+          MOVE 100 TO SQLN
+          MOVE 300 TO A.
+          MOVE 1 TO SQLTYPE(A) 
+          GOBACK.
+      *
+       END PROGRAM 'TSTSQLDA'.
+      *
+])
+AT_CHECK([${COMPILE} -std ibm -debug -o prog prog.cob])
+AT_CHECK([./prog], [140], ,
+[prog.cob:24: libcob: Subscript of 'SQLTYPE' out of bounds: 300
+])
+
+AT_CLEANUP
+
